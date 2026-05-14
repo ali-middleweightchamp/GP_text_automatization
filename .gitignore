@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+results.txt
+test_*.py
+check_*.py
+*.txt
+!requirements.txt
+.claude/
