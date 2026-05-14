@@ -1,4 +1,4 @@
-# GP Rewriter — Golden Pages Uzbekistan
+# GP Rewriter 
 
 Автоматическое переписывание описаний компаний на 3 языках (RU/UZ/EN) с помощью AI.
 
