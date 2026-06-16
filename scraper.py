@@ -16,19 +16,22 @@ def get_official_names(company_id: int, page: Page) -> dict:
         'en': f'https://goldenpages.uz/en/company/?Id={company_id}',
     }
     for lang, url in urls.items():
-        try:
-            page.goto(url)
-            page.wait_for_load_state('networkidle', timeout=10000)
-            el = page.query_selector('h1')
-            if el:
-                name = el.inner_text().strip()
-                # Убираем суффикс " - Город" если есть
-                if ' - ' in name:
-                    name = name.rsplit(' - ', 1)[0].strip()
-                if name and len(name) > 2:
-                    results[lang] = name
-        except Exception as e:
-            print(f"  Не удалось получить {lang} название: {e}")
+        for attempt in range(2):
+            try:
+                page.goto(url)
+                page.wait_for_load_state('networkidle', timeout=15000)
+                el = page.query_selector('h1')
+                if el:
+                    name = el.inner_text().strip()
+                    # Убираем суффикс " - Город" если есть
+                    if ' - ' in name:
+                        name = name.rsplit(' - ', 1)[0].strip()
+                    if name and len(name) > 2:
+                        results[lang] = name
+                break
+            except Exception as e:
+                if attempt == 1:
+                    print(f"  Не удалось получить {lang} название: {e}")
     return results
 
 
