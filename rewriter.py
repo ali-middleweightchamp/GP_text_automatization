@@ -23,11 +23,11 @@ _FORM_MAP = {
     'МЧП':  ('МЧП',  'MCHX', 'SPE'),
     'ГП':   ('ГП',   'DK',   'SE'),
     'ДФХ':  ('ДФХ',  'DXK',  'PFE'),
-    'ТМ':   ('ТМ',   'TM',   'TM'),
+    'ТМ':   ('ТМ',   'SB',   'TM'),
     'АО':   ('АО',   'AJ',   'JSC'),
     'УП':   ('УП',   'KK',   'UE'),
     'ГУП':  ('ГУП',  'DUK',  'SUE'),
-    'САВДО БЕЛГИСИ': ('ТМ',  'Savdo belgisi', 'TM'),
+    'САВДО БЕЛГИСИ': ('ТМ',  'SB', 'TM'),
     'MCHJ': ('ООО',  'MCHJ', 'LTD'),
     'OAJ':  ('ОАО',  'OAJ',  'OJSC'),
     'YoAJ': ('ЗАО',  'YoAJ', 'CJSC'),
@@ -63,6 +63,13 @@ _FORM_MAP = {
     'ЗАО СП':  ('ЗАО СП',  'YoAJ QK',  'CJSC JV'),
     'СП АО':   ('СП АО',   'AJ QK',    'JSC JV'),
     'АО СП':   ('АО СП',   'AJ QK',    'JSC JV'),
+    # ── Составные формы с ИП/ЧП ──────────────────────────────
+    'ООО ИП':  ('ООО ИП',  'MCHJ YT',  'LTD IE'),
+    'ИП ООО':  ('ИП ООО',  'YT MCHJ',  'IE LTD'),
+    'ЧП ООО':  ('ЧП ООО',  'XK MCHJ',  'PE LTD'),
+    'ООО ЧП':  ('ООО ЧП',  'MCHJ XK',  'LTD PE'),
+    'ИП ЧП':   ('ИП ЧП',   'YT XK',    'IE PE'),
+    'ЧП ИП':   ('ЧП ИП',   'XK YT',    'PE IE'),
     # ── Банки (новые) ────────────────────────────────────────
     'ОАКБ':  ('ОАКБ',  'OATB',   'OJSB'),
     'ЗАКБ':  ('ЗАКБ',  'YoATB',  'CJSB'),
@@ -105,6 +112,8 @@ _FORM_MAP = {
     'XF':    ('ЧФ',    'XF',     'PF'),
     'PF':    ('ЧФ',    'XF',     'PF'),
     'IE':   ('ИП',   'YT',   'IE'),
+    'DK':   ('ГП',   'DK',   'SE'),
+    'SE':   ('ГП',   'DK',   'SE'),
     'PE':   ('ЧП',   'XK',   'PE'),
     'SUE':  ('ГУП',  'DUK',  'SUE'),
     # ── Новые формы ──────────────────────────────────────────
@@ -113,6 +122,10 @@ _FORM_MAP = {
     'КПП':  ('КПП',  'QXK',  'CME'),
     'ПП':   ('ПП',   'IK',   'PE'),
     'ТЗБ':  ('ТЗБ',  'TZB',  'CTB'),
+    'МЧФ':  ('МЧФ',  'KTXF', 'MPE'),
+    'СЭЗ':  ('СЭЗ',  'EIZ',  'FEZ'),
+    'EIZ':  ('СЭЗ',  'EIZ',  'FEZ'),
+    'FEZ':  ('СЭЗ',  'EIZ',  'FEZ'),
     'ТК':   ('ТК',   'TK',   'TC'),
     'ИндП': ('ИндП', 'YT',   'IE'),
     'ИНДП': ('ИндП', 'YT',   'IE'),
@@ -507,9 +520,15 @@ def detect_subject(company_name: str, lang: str) -> Tuple[str, str, bool]:
         form, clean, hq = unknown
         return form, clean, hq
 
-    # Если в названии есть кавычки — берём только их содержимое
-    m = re.search(r'[«"""]([^«"""»]+)[»"""]', company_name)
-    clean = m.group(1).strip() if m else company_name.strip('«»"""\'"').strip()
+    # Если в названии есть кавычки — берём их содержимое
+    # При двух кавычках ("ТЕРМЕЗ" "IMZO") — берём ПОСЛЕДНЕЕ (основной бренд)
+    all_quoted = re.findall(r'[«"""]([^«"""»]+)[»"""]', company_name)
+    if len(all_quoted) >= 2:
+        clean = all_quoted[-1].strip()
+    elif all_quoted:
+        clean = all_quoted[0].strip()
+    else:
+        clean = company_name.strip('«»"""\'"').strip()
     return 'AUTO', clean, has_quotes
 
 
@@ -569,6 +588,8 @@ _UZ_DESCRIPTOR_WORDS = frozenset({
     # дополнительные дескрипторы
     'galereyasi', 'parki', 'xonadoni', 'muassasasi',
     'kompleksi', 'klubi', 'markazi', 'shahobchasi',
+    # фермерское хозяйство — все варианты написания первого слова
+    "xo'jaligi", "xo'jaligi", "xojaligi",
 })
 
 
@@ -623,7 +644,12 @@ PROMPT_RU = """Ты редактор корпоративных описаний
 - ⚠️ ПРАВИЛО КОНКРЕТИКИ: каждое предложение должно называть КОНКРЕТНЫЙ товар, услугу или факт. ЗАПРЕЩЕНО: "рассматривает возможности экспорта", "изучает возможности расширения", "основные направления включают оптовую и розничную реализацию продукции", "выпускаются изделия, которые применяются в строительстве" — это пустышки без конкретики. Предложения типа "Деятельность включает внутренние и внешнеэкономические операции" — запрещены, потому что не говорят ЧТО именно производится или продаётся.
 - ⚠️ СТРОГО ЗАПРЕЩЕНО географические предложения-пустышки: "деятельность охватывает [город/область/регион]", "деятельность компании охватывает", "деятельность предприятия охватывает", "реализуется на рынке Узбекистана", "на внутреннем рынке", "на отечественном рынке", "ориентировано на рынок", "в данных сегментах", "основное направление деятельности ориентировано". Такие предложения ничего не говорят о том ЧЕМ занимается компания — удаляй их полностью. ИСКЛЮЧЕНИЕ: "экспортирует на рынки СНГ/зарубежные рынки" — это факт, оставляй.
 - ⚠️ СТРОГО ЗАПРЕЩЕНО: "производственные мощности расположены в [месте]", "производственные мощности находятся в [месте]", "производственные мощности размещены в [месте]" — это пустышки без содержания. Если хочешь упомянуть производство — пиши ЧТО там производят, а не где расположены мощности.
+- ⚠️ ЗАПРЕЩЕНА ТАВТОЛОГИЯ: нельзя использовать однокоренные слова в соседних предложениях. Если в 1-м предложении «текстильная продукция» — во 2-м нельзя писать «текстильные изделия» или «текстильная промышленность». Меняй корень: ткань → полотно → материал → волокно.
 - ⚠️ ЗАПРЕЩЕНО повторять одну и ту же информацию в разных предложениях. Если первое предложение говорит "производит автозапчасти" — не пиши "изготавливает компоненты для автомобильной отрасли" в следующем предложении.
+
+ПРИМЕР (Было → Стало):
+❌ «Компания производит текстильную продукцию. Ассортимент включает текстильные изделия. Предприятие работает в текстильной отрасли.»
+✅ «ООО "ALFA" выпускает хлопчатобумажные и синтетические ткани. Ассортимент охватывает полотна для одежды, постельного белья и технических нужд.»
 - ⚠️ СТРОГО ЗАПРЕЩЕНО упоминать сайт/сайты, официальный сайт, веб-сайт, веб-ресурс, онлайн-ресурс, интернет, соцсети, контакты, каталог товаров.
 - ⚠️ ЗАПРЕЩЕНО: "что позволяет", "что обеспечивает", "ориентируясь на потребности клиентов", "ориентируясь на нужды клиентов", "удовлетворить потребности клиентов", "удовлетворяющие потребности", "широкий ассортимент", "с учётом специфических требований", "с учётом индивидуальных требований", "пользуются спросом среди потребителей", "в соответствии со стандартами качества", "ориентировано на рынок", "фокусируется на выполнении заказов", "развивается направление"
 - ⚠️ СТРОГО ЗАПРЕЩЕНО упоминать города и регионы: Ташкент, Самарканд, Бухара, Фергана, Андижан, Наманган, Карши, Нукус, Термез, Джизак, Гулистан, Навои, Ургенч, Коканд, Маргилан, Нурафшон, а также любые сочетания "[Город]ская область", "[Город]ский район", "[Город]ский регион". ИСКЛЮЧЕНИЕ: только если компания работает по всей стране — тогда допустимо одно упоминание "на территории Узбекистана". НЕЛЬЗЯ упоминать локацию в каждом предложении — если уж упоминаешь географию, это должно быть один раз и только если это важный факт (например, единственный завод в регионе).
@@ -714,25 +740,34 @@ PROMPT_UZ = """Переведи текст на узбекский язык (л�
 MAHSULOT: [что производит/продаёт/делает компания — конкретные товары/услуги из текста]
 
 ШАГ 2: Напиши полный перевод. В первом предложении ОБЯЗАТЕЛЬНО включи MAHSULOT перед глаголом:
-✅ MChJ "SARBON MEBEL" [mahsulot]ni ishlab chiqaradi va sotadi.
-✅ XK "BUXARA GRAND" [mahsulot]ni ishlab chiqaradi.
+✅ "SARBON MEBEL" MChJ [mahsulot]ni ishlab chiqaradi va sotadi.
+✅ "BUXARA GRAND" XK [mahsulot]ni ishlab chiqaradi.
 
 СТРУКТУРА НАЗВАНИЯ КОМПАНИИ — КРИТИЧНО:
-• Аббревиатуры форм (MCHJ, XK, AJ, QK и т.п.) — ПЕРЕД именем в кавычках, без суффикса:
-  ✅ MCHJ "SARBON MEBEL" mebel ishlab chiqaradi.   ❌ "SARBON MEBEL" MCHJ kompaniyasi...
-• Словесные дескрипторы (galereya, restoran, kafe, do'kon, zavod и т.п.) — ТОЛЬКО ПОСЛЕ имени, ОДИН РАЗ, в посессивной форме:
+• Аббревиатуры форм (MChJ, XK, AJ, QK и т.п.) — ПОСЛЕ имени в кавычках (узбекский стандарт):
+  ✅ "SARBON MEBEL" MChJ mebel ishlab chiqaradi.   ❌ MChJ "SARBON MEBEL" ...
+  ✅ "BUXARA GRAND" XK ishlab chiqaradi.            ❌ XK "BUXARA GRAND" ...
+• Словесные дескрипторы (galereya, restoran, kafe, do'kon, zavod и т.п.) — ПОСЛЕ имени, ОДИН РАЗ, в посессивной форме:
   ✅ "ONTO.ARTE" galereyasi bo'yoqlar ishlab chiqaradi.
   ✅ "BROOKLYN" do'koni alkogolli mahsulotlarni sotadi.
-  ❌ Galereya "ONTO.ARTE" galereyasi ...  (дескриптор ДО и ПОСЛЕ — ЗАПРЕЩЕНО)
   ❌ "ONTO.ARTE" galereyasi galereyasi ... (дескриптор ДВАЖДЫ — ЗАПРЕЩЕНО)
   ❌ "BROOKLYN" do'koni do'koni ...       (дескриптор ДВАЖДЫ — ЗАПРЕЩЕНО)
 
 ТЕХНИЧЕСКИЕ АББРЕВИАТУРЫ из оригинала (ПЭТ → PET, ПВХ → PVC, МДФ → MDF и т.п.) — сохраняй как латинский аналог, НЕ УДАЛЯЙ. Пример: «ПЭТ-преформ» → «PET-preformalar».
 
-ЛЕКСИЧЕСКОЕ РАЗНООБРАЗИЕ: не повторяй одно и то же существительное или прилагательное в соседних предложениях — используй синонимы. Например: mahsulot / tovar / buyum / assortiment; ishlab chiqarish / tayyorlash / yasash; sotadi / yetkazib beradi / taklif etadi.
-КРИТИЧНО: не добавляй прилагательные и свойства, которых нет в оригинале. «To'qilmagan material» нельзя превращать в «nozik to'qilmagan material». Переводи только то, что есть в источнике.
-КРИТИЧНО: исправляй логические ошибки оригинала — если написано «ассортимент включает оптовую и розничную торговлю», это ошибка. Опиши ЧТО продаётся, а не как.
-ЗАПРЕЩЕНО: первое предложение без указания ЧТО производят/продают. Нельзя писать просто "ishlab chiqarish bilan shug'ullanadi" — перед глаголом должен стоять конкретный продукт из MAHSULOT: ✅ metalloprokat ishlab chiqaradi va sotadi  ❌ ishlab chiqarish bilan shug'ullanadi
+ЛЕКСИЧЕСКОЕ РАЗНООБРАЗИЕ И ТАВТОЛОГИЯ: не повторяй однокоренные слова в соседних предложениях. Если в первом предложении «to'qimachilik mahsulotlari» — во втором нельзя писать «to'qimachilik buyumlari» или «to'qimachilik sanoati». Используй синонимы: mahsulot / tovar / buyum / assortiment; ishlab chiqarish / tayyorlash / yasash; sotadi / yetkazib beradi / taklif etadi.
+ЗАПРЕЩЁН ПАССИВНЫЙ ЗАЛОГ И КАНЦЕЛЯРИЗМЫ: вместо «ishlab chiqarish bilan shug'ullanadi» пиши «ishlab chiqaradi». Только активные глаголы.
+ЗАПРЕЩЕНО КАЛЬКИРОВАТЬ РУССКИЙ СИНТАКСИС: не переноси русские конструкции дословно. ❌ «suyuq shisha (natriy silikat)ni» → ✅ «suyuq shisha, ya'ni natriy silikatni» или просто «suyuq shishani».
+КРИТИЧНО: не добавляй прилагательные и свойства, которых нет в оригинале.
+КРИТИЧНО: исправляй логические ошибки оригинала.
+
+ПРИМЕР (Было → Стало):
+❌ «"ALFA" MChJ to'qimachilik mahsulotlarini ishlab chiqarish bilan shug'ullanadi. Assortiment to'qimachilik buyumlarini o'z ichiga oladi. Faoliyat to'qimachilik sanoatiga yo'naltirilgan.»
+✅ «"ALFA" MChJ jun, paxta va sintetik gazlamalar ishlab chiqaradi va sotadi. Assortimentga kiyim-kechak va uy-ro'zg'or uchun matolar kiradi.»
+ЗАПРЕЩЕНО: первое предложение без конкретного названия товара/услуги. Нельзя писать просто "ishlab chiqarish bilan shug'ullanadi", "ishlab chiqaradi va sotadi" или "mahsulotlarini ishlab chiqaradi" без указания ЧТО именно.
+⚠️ ДЛИННЫЕ НАЗВАНИЯ БЕЗ КАВЫЧЕК: если название компании длинное (министерство, завод, государственное предприятие) — ОБЯЗАТЕЛЬНО включай MAHSULOT перед глаголом:
+✅ YOG'OCHNI QAYTA ISHLASH ZAVODI ... yog'och mahsulotlarini ishlab chiqaradi va sotadi.
+❌ YOG'OCHNI QAYTA ISHLASH ZAVODI ... ishlab chiqaradi va sotadi.  ← MAHSULOT пропущен! — перед глаголом должен стоять конкретный продукт из MAHSULOT: ✅ metalloprokat ishlab chiqaradi va sotadi  ❌ ishlab chiqarish bilan shug'ullanadi
 РЕГИСТР: аббревиатуры форм (MCHJ, XK, AJ и т.п.) — ВСЕГДА заглавными. Дескрипторы (kompaniya, korxona, zavod, kafe и т.п.) — с заглавной ТОЛЬКО в начале предложения, в середине — строчными.
 ЗАПРЕЩЕНО: упоминать города (Toshkent, Samarqand, Buxoro, Farg'ona и т.д.)
 
@@ -767,7 +802,14 @@ RULES:
 - Translate every sentence FULLY — do not skip or shorten anything
 - CRITICAL: do NOT add adjectives, properties, or characteristics absent from the source. If the source says "non-woven fabric" — do NOT write "delicate non-woven fabric". If it says "cables" — do NOT write "high-quality cables". Translate only what is explicitly stated.
 - CRITICAL: fix logical errors in the source — if the original says "the range includes wholesale and retail trade", that is wrong (trade is a channel, not a product). Restate it correctly: describe WHAT is sold, mention wholesale/retail separately if needed.
-- LEXICAL VARIETY: do not repeat the same noun or adjective in adjacent sentences — use synonyms or rephrase. E.g. if sentence 1 uses "products", sentence 2 should use "goods", "items", "range", or "output". If sentence 1 uses "production", sentence 2 should use "output", "manufacturing", "fabrication". The text must read smoothly and professionally without word repetition.
+- NO TAUTOLOGY: never use words with the same root in adjacent sentences. If sentence 1 has "textile products" — sentence 2 cannot have "textile goods" or "textile industry". Change the root word entirely: fabric → cloth → material → fiber.
+- ACTIVE VERBS ONLY: "produces", "manufactures", "supplies", "exports" — never "is engaged in production", "carries out manufacturing", "provides services in the field of".
+- NO CALQUING: do not translate Russian syntax literally. Write natural English B2B.
+- LEXICAL VARIETY: do not repeat the same noun in adjacent sentences — use synonyms.
+
+EXAMPLE (Before → After):
+❌ "The company produces textile products. The range includes textile goods. The enterprise operates in the textile industry."
+✅ "LTD 'ALFA' manufactures cotton and synthetic fabrics. The range covers apparel, bedding, and industrial cloth."
 - VARY verbs across sentences. Professional vocabulary to rotate:
   Manufacturing: produces / manufactures / fabricates / processes / assembles / outputs
   Trade/supply: supplies / delivers / distributes / exports / trades in / markets
@@ -855,8 +897,8 @@ TEKSHIR:
 3. Reklama iboralari: keng assortiment, yuqori sifat, individual yondashuv, turli xil, xilma-xil, kafolatlaydi, samarali, zamonaviy
 4. Shahar nomlari (Toshkent, Samarqand, Buxoro, Farg'ona, Andijon va boshqalar) — agar kompaniya butun mamlakat miqyosida ishlamasa
 5. Gaplarning takrorlanishi — bir xil ma'lumot ikki gapda
-6. Bo'sh so'ngi gaplar: "ichki bozorda amalga oshiriladi", "turli mijozlar uchun mo'ljallangan", "talablariga javob beradi"
-7. Birinchi gapda mahsulot nomi yo'q: "ishlab chiqarish bilan shug'ullanadi" yoki "xizmatlarni taqdim etadi" mahsulot/xizmat nomisiz — ANIQ ko'rsatilishi kerak (masalan: "keytring xizmatlari", "metalloprokat ishlab chiqaradi")
+6. Bo'sh so'ngi gaplar: "ichki bozorda amalga oshiriladi", "turli mijozlar uchun mo'ljallangan", "talablariga javob beradi", "faoliyat ishlab chiqarish va ulgurji savdoni qamrab oladi", "faoliyat ... qamrab oladi"
+7. Birinchi gapda mahsulot nomi yo'q: "ishlab chiqaradi va sotadi", "ishlab chiqarish bilan shug'ullanadi", "xizmatlarni taqdim etadi" yoki "mahsulotlarini ishlab chiqaradi" (aniq nom ko'rsatmasdan) — mahsulot ANIQ nomlanishi kerak (masalan: "yog'och mahsulotlarini", "qandolat mahsulotlarini", "to'qimachilik mahsulotlarini")
 8. Kiriллица harflari (kotirovkalardagi nomlardan tashqari)
 
 MATN:
@@ -998,7 +1040,10 @@ _AD_SENTENCE_PATTERNS = re.compile(
     r'|спросом\s+среди\s+(?:местных|конечных|потенциальных)\s+\w+'
     r'|на\s+(?:отечественном|внутреннем)\s+рынке\s+(?:страны|республики|Узбекистана)'
     r'|производственный\s+процесс\s+сосредоточен'
-    r'|(?:продаёт|реализует|продает)\s+свою\s+продукцию\s+на\s+рынке',
+    r'|(?:продаёт|реализует|продает)\s+свою\s+продукцию\s+на\s+рынке'
+    r'|в\s+сферу\s+деятельности\s+входит\s+реализация'
+    r'|в\s+сферу\s+деятельности\s+входит\s+(?:производство|выпуск|изготовление)\s+\w+\s+на\s+территории'
+    r'|деятельность\s+охватывает\s+(?:как\s+производство|производство\s+и\s+реализацию)',
     re.IGNORECASE,
 )
 
@@ -1067,14 +1112,24 @@ _PRONOUN_OBJ_RE = re.compile(
 
 # Канцеляризмы → активные глаголы (применяется ДО валидации)
 _CANCEL_RU = [
+    # Восстанавливаем правильный регистр смешанных аббревиатур
+    (re.compile(r'\bИндп\b'), 'ИндП'),
+    (re.compile(r'\bиндп\b', re.I), 'ИндП'),
+    # Канцеляризмы → активные глаголы
+    (re.compile(r'\bзанимается\s+производством\s+и\s+(?:реализацией|продажей)\b', re.I), 'производит и реализует'),
     (re.compile(r'\bзанимается\s+производством\b', re.I), 'производит'),
     (re.compile(r'\bзанимается\s+реализацией\b', re.I), 'реализует'),
     (re.compile(r'\bзанимается\s+продажей\b', re.I), 'продаёт'),
     (re.compile(r'\bзанимается\s+поставками?\b', re.I), 'поставляет'),
+    (re.compile(r'\bзанимается\s+розничной\s+торговлей\b', re.I), 'ведёт розничные продажи'),
+    (re.compile(r'\bзанимается\s+оптовой\s+торговлей\b', re.I), 'осуществляет оптовые поставки'),
+    (re.compile(r'\bведёт\s+(?:оптовую|розничную)\s+(?:продажу|торговлю)\b', re.I), 'поставляет'),
     (re.compile(r'\bосуществляет\s+производство\b', re.I), 'производит'),
     (re.compile(r'\bосуществляет\s+поставки\b', re.I), 'поставляет'),
     (re.compile(r'\bосуществляет\s+реализацию\b', re.I), 'реализует'),
     (re.compile(r'\bосуществляет\s+продажу\b', re.I), 'продаёт'),
+    (re.compile(r'\bосуществляет\s+(?:оптовую|розничную)\s+торговлю\b', re.I), 'поставляет'),
+    (re.compile(r'\bведёт\s+оптовую\s+торговлю\b', re.I), 'поставляет оптом'),
 ]
 _CANCEL_EN = [
     (re.compile(r'\bis\s+engaged\s+in\s+the\s+production\s+and\s+sale\b', re.I), 'produces and sells'),
@@ -1082,14 +1137,32 @@ _CANCEL_EN = [
     (re.compile(r'\bis\s+engaged\s+in\s+the\s+sale\b', re.I), 'sells'),
     (re.compile(r'\bis\s+engaged\s+in\s+providing\b', re.I), 'provides'),
     (re.compile(r'\bis\s+engaged\s+in\s+manufacturing\b', re.I), 'manufactures'),
+    (re.compile(r'\bis\s+engaged\s+in\s+(?:retail|wholesale)\s+(?:trade|sales?|trading)\b', re.I), 'sells'),
+    (re.compile(r'\bconducts\s+(?:wholesale|retail)\s+(?:trade|sales?)\b', re.I), 'sells'),
     (re.compile(r'\bprovides\s+services\s+in\s+the\s+field\s+of\b', re.I), 'provides'),
     (re.compile(r'\bcarries\s+out\s+the\s+production\b', re.I), 'produces'),
     (re.compile(r'\bcarries\s+out\s+(?:the\s+)?sale\b', re.I), 'sells'),
+    (re.compile(r'\bForeign\s+[Ee]nterprise\b'), 'FE'),
 ]
 _CANCEL_UZ = [
     (re.compile(r"\bo['ʻʼ]z\s+ichiga\s+oladi\b", re.I), 'kiradi'),
+    (re.compile(r'\bsotish\s+va\s+ishlab\s+chiqarish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'ishlab chiqaradi va sotadi'),
+    (re.compile(r'\bishlab\s+chiqarish\s+va\s+sotish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'ishlab chiqaradi va sotadi'),
+    (re.compile(r'\bsotish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'sotadi'),
+    (re.compile(r'\bsavdo\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'sotadi'),
     (re.compile(r'\bamalga\s+oshiradi\s+ishlab\s+chiqarish\b', re.I), 'ishlab chiqaradi'),
     (re.compile(r'\bamalga\s+oshiradi\s+sotish\b', re.I), 'sotadi'),
+    (re.compile(r'\brealizatsiya\s+qilish\b', re.I), "sotish"),
+    (re.compile(r'\brealizatsiya\s+qiladi\b', re.I), "sotadi"),
+    (re.compile(r'\bsavdo\s+belgisi\b', re.I), 'SB'),
+    (re.compile(r'\bxorijiy\s+korxonasi\b', re.I), 'XK'),
+    # "oilaviy korxonasi oilaviy [product]" → убираем второй oilaviy (ошибка модели)
+    (re.compile(r'(oilaviy\s+korxonasi)\s+oilaviy\b', re.I), r'\1'),
+    # Тройной дескриптор фермерского хозяйства → оставляем один
+    (re.compile(r"(?:fermerlik|fermer)\s+xo[''ʻʼ]jaligi(?:\s+(?:fermerlik|fermer)\s+xo[''ʻʼ]jaligi)+", re.I),
+     "fermerlik xo'jaligi"),
+    # "IP" как слово (ip = пряжа/нить) → строчная, чтобы не путать с формой ИП
+    (re.compile(r'\bIP\b(?!\s*(?:address|addr|\d))'), 'ip'),
 ]
 
 # Повтор глагола "занимается" в тексте
@@ -2058,56 +2131,7 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
     else:
         clean_official = official_name
 
-    # ── Facts-based generation (новый путь) ──────────────────────────────────
-    if facts and facts.strip() and lang in ('uz', 'en'):
-        _src_n = max(2, len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', text))))
-        _n = min(_src_n, 4)
-        if lang == 'uz':
-            _prompt = PROMPT_UZ_FROM_FACTS.format(
-                n=_n, official_name=official_name or clean_official, facts=facts.strip()
-            )
-        else:
-            _prompt = PROMPT_EN_FROM_FACTS.format(
-                n=_n, official_name=official_name or clean_official, facts=facts.strip()
-            )
-        _raw = _call_api(client, _prompt, lang, temperature=0.4)
-        if _raw:
-            # Извлекаем тег <p>...</p>
-            _pm = re.search(r'(<p>.*?</p>)', _raw, re.DOTALL)
-            if _pm:
-                _raw = _pm.group(1)
-            elif not _raw.startswith('<p>'):
-                _raw = f'<p>{_raw.strip()}</p>'
-            # Применяем постобработку имени и формы
-            _raw = _fix_false_form(text, _raw, lang, has_quotes)
-            if lang == 'uz':
-                _raw = _fix_uz_capslock(_raw)
-                _apos_tmp = r"['''ʻʻʼʼ']"
-                _norm_dw = frozenset(re.sub(_apos_tmp, "'", w) for w in _UZ_DESCRIPTOR_WORDS)
-                def _dedup_tmp(m):
-                    np_, rest_ = m.group(1), m.group(2)
-                    tokens_ = rest_.split(); res_ = []; pn_ = None; sd_ = set()
-                    for i_, t_ in enumerate(tokens_):
-                        tn_ = re.sub(_apos_tmp, "'", t_.rstrip('.,;').lower())
-                        if i_ < 8 and tn_ == pn_ and len(tn_) > 2: continue
-                        if i_ < 8 and tn_ in _norm_dw and tn_ in sd_: continue
-                        if i_ < 8 and tn_ in _norm_dw: sd_.add(tn_)
-                        res_.append(t_); pn_ = tn_
-                    return np_ + ' ' + ' '.join(res_)
-                _raw = re.sub(r'(<p>(?:[A-Z]{2,6}\s+)?[«"""][^«"""»]*[»"""])\s+(.+)', _dedup_tmp, _raw)
-                for _p, _r in _CANCEL_UZ:
-                    _raw = _p.sub(_r, _raw)
-            elif lang == 'en':
-                for _p, _r in _CANCEL_EN:
-                    _raw = _p.sub(_r, _raw)
-                _raw = re.sub(r'<p>It\s+(?=[A-Za-z])', '<p>The company ', _raw)
-                _raw = re.sub(r'(?<=\.\s)It\s+(?=[a-z])', 'The company ', _raw)
-            _raw = _strip_ad_sentences(_raw)
-            if _raw and _raw.strip():
-                return force_official_name(_raw, official_name, lang=lang)
-        # Fallback на обычный перевод если facts-генерация вернула пустоту
-
-    # Для UZ: заменяем кириллические аббревиатуры материалов латинскими эквивалентами,
+        # Для UZ: заменяем кириллические аббревиатуры материалов латинскими эквивалентами,
     # чтобы модель не теряла и не искажала их при переводе.
     _CYR_ABBR_MAP = {
         'ЛДСП': 'LDSP', 'ДСП': 'DSP', 'МДФ': 'MDF', 'ЛМДФ': 'LMDF',
@@ -2150,15 +2174,15 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
         if effective_form:
             system_parts.append(
                 f"⚠️ КРИТИЧНО: Форма/дескриптор компании ОБЯЗАТЕЛЬНО должна быть \"{effective_form}\" "
-                f"(взята из официального источника). НЕ заменяй на MCHJ, AJ или другую форму. "
-                f"Пример: \"NAME\" {effective_form} (название ПЕРВЫМ в кавычках, затем {effective_form})."
+                f"(взята из официального источника). НЕ заменяй на другую форму. "
+                f"Узбекский стандарт: имя ПЕРВЫМ в кавычках, затем форма: \"{clean_official or 'NAME'}\" {effective_form} ..."
             )
         if clean_official:
             if has_quotes:
                 system_parts.append(
                     f"ОФИЦИАЛЬНОЕ НАЗВАНИЕ КОМПАНИИ (только написание): \"{clean_official}\". "
                     f"Используй именно это написание в кавычках. "
-                    f"Формы (AJ, MCHJ, YT) идут ПЕРВЫМИ: AJ \"{clean_official}\". "
+                    f"Узбекский порядок: имя ПЕРВЫМ: \"{clean_official}\" MChJ/XK/AJ. "
                     f"Дескрипторы (kafesi, markazi) — ПОСЛЕ: \"{clean_official}\" kafesi."
                 )
             else:
@@ -2293,18 +2317,23 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
             result_tokens = []
             prev_norm = None
             seen_desc = set()  # дескрипторные слова — только один раз в первых 8 токенах
+            window = []  # скользящее окно последних 3 нормализованных токенов
             for i, tok in enumerate(tokens):
                 tok_norm = re.sub(_apos, "'", tok.rstrip('.,;').lower())
                 # Подряд идущий дубль — убираем
-                if i < 8 and tok_norm == prev_norm and len(tok_norm) > 2:
+                if i < 8 and tok_norm == prev_norm and len(tok_norm) > 1:
                     continue
-                # Дескрипторное слово повторяется в первых 8 токенах (do'koni №1 do'koni)
+                # Слово встречается в окне последних 3 токенов (tikuv sexi tikuv)
+                if i < 8 and len(tok_norm) > 3 and tok_norm in window:
+                    continue
+                # Дескрипторное слово повторяется в первых 8 токенах
                 if i < 8 and tok_norm in _norm_desc_words and tok_norm in seen_desc:
                     continue
                 if i < 8 and tok_norm in _norm_desc_words:
                     seen_desc.add(tok_norm)
                 result_tokens.append(tok)
                 prev_norm = tok_norm
+                window = (window + [tok_norm])[-3:]
             return name_part + ' ' + ' '.join(result_tokens)
         result = re.sub(r'(<p>(?:[A-Z]{2,6}\s+)?[«"""][^«"""»]*[»"""])\s+(.+)', _dedup_consecutive, result)
 

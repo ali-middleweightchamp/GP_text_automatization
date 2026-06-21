@@ -29,7 +29,7 @@ sys.stderr = _Tee(sys.__stderr__, _log_file)
 
 from auth import login
 from scraper import scrape_organizations, get_official_names
-from rewriter import init_openai, rewrite, translate, extract_facts, detect_subject, force_official_name
+from rewriter import init_openai, rewrite, translate, detect_subject, force_official_name
 from updater import update_organization, read_descriptions
 
 logging.basicConfig(
@@ -142,28 +142,39 @@ def main():
 
                 # UZ и EN — параллельно
                 if text_ru and text_ru.strip():
-                    # Извлекаем факты из RU для качественной нативной генерации UZ/EN
-                    ru_facts = extract_facts(client, new_ru)
-
                     def _do_uz():
                         raw = translate(
                             client, new_ru, 'uz',
                             has_quotes=has_quotes,
                             official_name=official.get('uz', ''),
-                            official_subject=subject_uz if subject_uz != 'AUTO' else '',
-                            facts=ru_facts
+                            official_subject=subject_uz if subject_uz != 'AUTO' else ''
                         )
-                        return force_official_name(raw, official.get('uz', ''), lang='uz')
+                        result = force_official_name(raw, official.get('uz', ''), lang='uz')
+                        import re as _re
+                        result = _re.sub(r'\bsavdo\s+belgisi\b', 'SB', result, flags=_re.IGNORECASE)
+                        result = _re.sub(r'\bxorijiy\s+korxonasi\b', 'XK', result, flags=_re.IGNORECASE)
+                        # UZ порядок: форма ПОСЛЕ имени — MChJ "NAME" ... → "NAME" MChJ ...
+                        _uz_abbr = r'(MChJ|MCHJ|XK|AJ|YT|QK|OAJ|YoAJ|ATB|DK|IK|UK|KK|XSIK|KTXF|EIZ|SB)'
+                        result = _re.sub(
+                            r'<p>' + _uz_abbr + r'\s+([«"""][^«"""»]*[»"""])',
+                            lambda m: f'<p>{m.group(2)} {m.group(1)}',
+                            result
+                        )
+                        return result
 
                     def _do_en():
                         raw = translate(
                             client, new_ru, 'en',
                             has_quotes=has_quotes,
                             official_name=official.get('en', ''),
-                            official_subject=subject_en if subject_en != 'AUTO' else '',
-                            facts=ru_facts
+                            official_subject=subject_en if subject_en != 'AUTO' else ''
                         )
-                        return force_official_name(raw, official.get('en', ''), lang='en')
+                        result = force_official_name(raw, official.get('en', ''), lang='en')
+                        result = _re.sub(r'\bForeign\s+[Ee]nterprise\b', 'FE', result)
+                        result = _re.sub(r'(?<!is )(?<!\w)engaged in', 'is engaged in', result)
+                        # "Company "NAME"" → "The company "NAME""
+                        result = _re.sub(r'<p>(Company|Enterprise|Store|Plant|Factory)\s+"', lambda m: f'<p>The {m.group(1).lower()} "', result)
+                        return result
 
                     with ThreadPoolExecutor(max_workers=2) as ex:
                         fut_uz = ex.submit(_do_uz)
