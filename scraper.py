@@ -1,8 +1,25 @@
 import logging
 import os
+import re
 from playwright.sync_api import Page
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_outer_quotes(name: str) -> str:
+    """Чинит несогласованные внешние кавычки вокруг названия компании.
+
+    Источник (goldenpages) иногда отдаёт открывающую кавычку как апостроф:
+    'KARVON" → "KARVON". Внутренние апострофы в узбекских словах (O'ZBEKISTON,
+    shug'ullanadi) не трогаем — заменяем ТОЛЬКО ведущий символ, если дальше
+    в строке есть парная двойная кавычка/ёлочка.
+    """
+    # Ведущий апостроф-как-кавычка + где-то дальше настоящая закрывающая " или »
+    return re.sub(
+        r"^\s*['‘’ʻʼ](?=[^\"»«]*[\"»])",
+        '"',
+        name,
+    )
 
 
 def get_official_names(company_id: int, page: Page) -> dict:
@@ -26,6 +43,7 @@ def get_official_names(company_id: int, page: Page) -> dict:
                     # Убираем суффикс " - Город" если есть
                     if ' - ' in name:
                         name = name.rsplit(' - ', 1)[0].strip()
+                    name = _normalize_outer_quotes(name)
                     if name and len(name) > 2:
                         results[lang] = name
                 break

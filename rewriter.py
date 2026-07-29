@@ -11,32 +11,32 @@ logger = logging.getLogger(__name__)
 
 # Все известные формы → (ru, uz, en)
 _FORM_MAP = {
-    'ООО':  ('ООО',  'MCHJ', 'LTD'),
+    'ООО':  ('ООО',  'MChJ', 'LTD'),
     'ОАО':  ('ОАО',  'OAJ',  'OJSC'),
     'ЗАО':  ('ЗАО',  'YoAJ', 'CJSC'),
     'АКБ':  ('АКБ',  'ATB',  'JSB'),
     'АИКБ': ('АИКБ', 'ATIB', 'JISB'),
     'АТБ':  ('АТБ',  'ATB',  'JSB'),
-    'ИП':   ('ИП',   'YT',   'IE'),
+    'ИП':   ('ИП',   'XK',   'FE'),
     'ЧП':   ('ЧП',   'XK',   'PE'),
     'ЧПФ':  ('ЧПФ',  'XKF',  'PE'),
     'МЧП':  ('МЧП',  'MCHX', 'SPE'),
     'ГП':   ('ГП',   'DK',   'SE'),
     'ДФХ':  ('ДФХ',  'DXK',  'PFE'),
-    'ТМ':   ('ТМ',   'SB',   'TM'),
+    'ТМ':   ('ТМ',   'TM',   'TM'),
     'АО':   ('АО',   'AJ',   'JSC'),
     'УП':   ('УП',   'KK',   'UE'),
     'ГУП':  ('ГУП',  'DUK',  'SUE'),
-    'САВДО БЕЛГИСИ': ('ТМ',  'SB', 'TM'),
-    'MCHJ': ('ООО',  'MCHJ', 'LTD'),
+    'САВДО БЕЛГИСИ': ('ТМ',  'Savdo belgisi', 'TM'),
+    'MChJ': ('ООО',  'MChJ', 'LTD'),
     'OAJ':  ('ОАО',  'OAJ',  'OJSC'),
     'YoAJ': ('ЗАО',  'YoAJ', 'CJSC'),
-    'YT':   ('ИП',   'YT',   'IE'),
+    'YTT':   ('ИП',   'YT',   'IE'),
     'XK':   ('ЗАО',  'XK',   'PE'),
     'AJ':   ('АО',   'AJ',   'JSC'),
     'KK':   ('УП',   'KK',   'UE'),
     'DUK':  ('ГУП',  'DUK',  'SUE'),
-    'LLC':  ('ООО',  'MCHJ', 'LTD'),
+    'LLC':  ('ООО',  'MChJ', 'LTD'),
     'OJSC': ('ОАО',  'OAJ',  'OJSC'),
     'CJSC': ('ЗАО',  'YoAJ', 'CJSC'),
     'JSC':  ('АО',   'AJ',   'JSC'),
@@ -57,19 +57,12 @@ _FORM_MAP = {
     'ФП':   ('ФП',   'FK',    'BF'),
     'ДХ':   ('ДХ',   'DX',    'FH'),
     # ── Составные формы (СП + ООО/ЗАО/АО) ───────────────────
-    'СП ООО':  ('СП ООО',  'MChJ QK',  'LTD JV'),
-    'ООО СП':  ('ООО СП',  'MChJ QK',  'LTD JV'),
-    'СП ЗАО':  ('СП ЗАО',  'YoAJ QK',  'CJSC JV'),
+    'СП ООО':  ('СП ООО',  'QK MCHJ',  'JV LTD'),
+    'ООО СП':  ('ООО СП',  'MCHJ QK',  'LTD JV'),
+    'СП ЗАО':  ('СП ЗАО',  'QK YoAJ',  'JV CJSC'),
     'ЗАО СП':  ('ЗАО СП',  'YoAJ QK',  'CJSC JV'),
-    'СП АО':   ('СП АО',   'AJ QK',    'JSC JV'),
+    'СП АО':   ('СП АО',   'QK AJ',    'JV JSC'),
     'АО СП':   ('АО СП',   'AJ QK',    'JSC JV'),
-    # ── Составные формы с ИП/ЧП ──────────────────────────────
-    'ООО ИП':  ('ООО ИП',  'MCHJ YT',  'LTD IE'),
-    'ИП ООО':  ('ИП ООО',  'YT MCHJ',  'IE LTD'),
-    'ЧП ООО':  ('ЧП ООО',  'XK MCHJ',  'PE LTD'),
-    'ООО ЧП':  ('ООО ЧП',  'MCHJ XK',  'LTD PE'),
-    'ИП ЧП':   ('ИП ЧП',   'YT XK',    'IE PE'),
-    'ЧП ИП':   ('ЧП ИП',   'XK YT',    'PE IE'),
     # ── Банки (новые) ────────────────────────────────────────
     'ОАКБ':  ('ОАКБ',  'OATB',   'OJSB'),
     'ЗАКБ':  ('ЗАКБ',  'YoATB',  'CJSB'),
@@ -86,11 +79,23 @@ _FORM_MAP = {
     'ЧФП':   ('ЧФП',   'XFK',    'PPF'),
     'ЧКФ':   ('ЧКФ',   'XKF',    'PKF'),
     'ЧСП':   ('ЧСП',   'XQK',    'PCE'),
+    'ЧТФ':   ('ЧТФ',   'XSF',    'PTF'),
+    'XSF':   ('ЧТФ',   'XSF',    'PTF'),
+    'PTF':   ('ЧТФ',   'XSF',    'PTF'),
+    'ПТП':   ('ПТП',   'ICHSK',  'PTE'),
+    'ICHSK': ('ПТП',   'ICHSK',  'PTE'),
+    'PTE':   ('ПТП',   'ICHSK',  'PTE'),
+    'ЧТПП':  ('ЧТПП',  'XSICHK', 'PTIE'),
+    'XSICHK': ('ЧТПП', 'XSICHK', 'PTIE'),
+    'PTIE':  ('ЧТПП',  'XSICHK', 'PTIE'),
+    'ПРОИЗВОДСТВЕННО-ТОРГОВОЕ ПРЕДПРИЯТИЕ': ('ПТП', 'ICHSK', 'PTE'),
+    'ЧАСТНАЯ ТОРГОВАЯ ФИРМА': ('ЧТФ', 'XSF', 'PTF'),
+    'XUSUSIY SAVDO FIRMASI':  ('ЧТФ', 'XSF', 'PTF'),
+    'PRIVATE TRADING FIRM':   ('ЧТФ', 'XSF', 'PTF'),
     'ПБОЮЛ': ('ПБОЮЛ', 'YTSh',   'SP'),
     'СПД':   ('СПД',   'TSF',    'JBE'),
     # ── Иностранные ──────────────────────────────────────────
     'ИПП':   ('ИПП',   'CHIK',   'FIE'),
-    'ПИИ':   ('ПИИ',   'XSIK',   'FIE'),
     # ── Государственные (новые) ──────────────────────────────
     'ГК':    ('ГК',    'DK',     'SCorp'),
     # ── Кооперативы (новые) ──────────────────────────────────
@@ -105,6 +110,7 @@ _FORM_MAP = {
     'КРЕСТЬЯНСКОЕ ФЕРМЕРСКОЕ ХОЗЯЙСТВО': ('Крестьянское фермерское хозяйство', "Dehqon fermer xo'jaligi", 'Peasant farm'),
     # ── Некоммерческие (новые) ───────────────────────────────
     'НИЦ':   ('НИЦ',   'ITM',    'RC'),
+    'НТЦ':   ('НТЦ',   'ITM',    'STC'),
     'РЦ':    ('РЦ',    'RM',     'RC'),
     'ФОНД':  ('Фонд',  'Fond',   'Foundation'),
     'АНО':   ('АНО',   'AYoT',   'ANO'),
@@ -112,8 +118,6 @@ _FORM_MAP = {
     'XF':    ('ЧФ',    'XF',     'PF'),
     'PF':    ('ЧФ',    'XF',     'PF'),
     'IE':   ('ИП',   'YT',   'IE'),
-    'DK':   ('ГП',   'DK',   'SE'),
-    'SE':   ('ГП',   'DK',   'SE'),
     'PE':   ('ЧП',   'XK',   'PE'),
     'SUE':  ('ГУП',  'DUK',  'SUE'),
     # ── Новые формы ──────────────────────────────────────────
@@ -122,11 +126,6 @@ _FORM_MAP = {
     'КПП':  ('КПП',  'QXK',  'CME'),
     'ПП':   ('ПП',   'IK',   'PE'),
     'ТЗБ':  ('ТЗБ',  'TZB',  'CTB'),
-    'МЧФ':  ('МЧФ',  'KTXF', 'MPE'),
-    'СЭЗ':  ('СЭЗ',  'EIZ',  'FEZ'),
-    'EIZ':  ('СЭЗ',  'EIZ',  'FEZ'),
-    'FEZ':  ('СЭЗ',  'EIZ',  'FEZ'),
-    'ТК':   ('ТК',   'TK',   'TC'),
     'ИндП': ('ИндП', 'YT',   'IE'),
     'ИНДП': ('ИндП', 'YT',   'IE'),
     'YAKKA TARTIBDAGI TADBIRKOR': ('ИндП', 'Yakka tartibdagi tadbirkor', 'IE'),
@@ -142,6 +141,14 @@ _FORM_MAP = {
 }
 
 _LANG_IDX = {'ru': 0, 'uz': 1, 'en': 2}
+
+# RU-аббревиатуры форм (кириллица, 2-7 заглавных) — где ключ == RU-значение, т.е. это
+# настоящая аббревиатура, а не форма-слово («Фонд», «Фермерское хозяйство»).
+# Используется для сохранения ВЕРХНЕГО регистра формы при sentence-case дескриптора.
+RU_FORM_ABBRS = frozenset(
+    k for k, v in _FORM_MAP.items()
+    if re.fullmatch(r'[А-ЯЁ]{2,7}', k) and v[0] == k
+)
 
 # Набор однословных UZ-форм из _FORM_MAP для нормализации порядка в официальных названиях
 _UZ_FORM_ABBRS = frozenset(
@@ -383,47 +390,6 @@ _EN_ALL_LABELS_SORTED = sorted(
 )
 
 
-# Однословные аббревиатуры форм (остаются ALL CAPS при нормализации)
-_RU_FORM_ABBRS = frozenset(
-    v[0] for v in _FORM_MAP.values()
-    if v[0] and v[0] == v[0].upper() and re.match(r'^[А-ЯЁ]', v[0]) and ' ' not in v[0]
-)
-_EN_FORM_ABBRS = frozenset(
-    v[2] for v in _FORM_MAP.values()
-    if v[2] and v[2] == v[2].upper() and re.match(r'^[A-Z]', v[2]) and ' ' not in v[2]
-)
-
-
-# Собственные имена — всегда с заглавной при нормализации регистра
-_PROPER_NOUNS = frozenset({
-    'Uzbekistan', 'Republic', 'Karakalpakstan',
-    'Узбекистан', 'Узбекистана', 'Узбекистане',
-    'Республика', 'Республики', 'Республике',
-    'Каракалпакстан',
-})
-
-
-def _normalize_descriptor_case(label: str, lang: str) -> str:
-    """Нормализует регистр дескриптора: КОНДИТЕРСКИЙ ДОМ → Кондитерский дом.
-    Аббревиатуры форм (ООО, LTD, JV и т.п.) остаются заглавными.
-    Собственные имена (Uzbekistan, Республики и т.п.) остаются с заглавной."""
-    if not label or label == label.lower():
-        return label
-    abbrs = _RU_FORM_ABBRS if lang == 'ru' else _EN_FORM_ABBRS
-    abbrs_upper = {a.upper() for a in abbrs}
-    words = label.split()
-    result = []
-    for i, w in enumerate(words):
-        w_up = w.upper()
-        if w_up in abbrs_upper:
-            result.append(next((a for a in abbrs if a.upper() == w_up), w))
-        elif w.capitalize() in _PROPER_NOUNS or w.title() in _PROPER_NOUNS:
-            result.append(w.capitalize())
-        else:
-            result.append(w[0].upper() + w[1:].lower() if i == 0 else w.lower())
-    return ' '.join(result)
-
-
 def _tokenize(name: str) -> set:
     return set(re.split(r'[\s"«»()\[\]/]+', name.upper()))
 
@@ -520,15 +486,9 @@ def detect_subject(company_name: str, lang: str) -> Tuple[str, str, bool]:
         form, clean, hq = unknown
         return form, clean, hq
 
-    # Если в названии есть кавычки — берём их содержимое
-    # При двух кавычках ("ТЕРМЕЗ" "IMZO") — берём ПОСЛЕДНЕЕ (основной бренд)
-    all_quoted = re.findall(r'[«"""]([^«"""»]+)[»"""]', company_name)
-    if len(all_quoted) >= 2:
-        clean = all_quoted[-1].strip()
-    elif all_quoted:
-        clean = all_quoted[0].strip()
-    else:
-        clean = company_name.strip('«»"""\'"').strip()
+    # Если в названии есть кавычки — берём только их содержимое
+    m = re.search(r'[«"""]([^«"""»]+)[»"""]', company_name)
+    clean = m.group(1).strip() if m else company_name.strip('«»"""\'"').strip()
     return 'AUTO', clean, has_quotes
 
 
@@ -572,25 +532,54 @@ _UZ_DESCRIPTOR_WORDS = frozenset({
     'kombinati', 'fabrikasi', 'bazasi', 'majmuasi', 'xizmati',
     'savdosi', 'parrandasi', 'bosmaxonasi', 'nashriyoti',
     # магазин: ASCII apostrophe и Unicode-варианты
-    "do'koni", "do'koni", "doʻkoni", "doʼkoni",
+    "do’koni", "do’koni", "doʻkoni", "doʼkoni",
     # прочие пропущенные
     'mehmonxonasi', 'oshxonasi', 'novvoyxonasi', 'ustaxonasi',
     'kasalxonasi', 'poliklinikasi', 'shifoxonasi', 'sartaroshxonasi',
     'avtoservisi', 'omborxonasi', 'qandolatxonasi', 'pitseriyasi',
     'kinoteatri', 'muzeyi', 'teatri', 'lombardi', 'bozori',
-    # составные компоненты (не дают попасть под pop)
-    'filiali', 'filial', 'bosh', 'ofisi',
-    # дополнительные дескрипторы
-    'kooperativi', 'shirkatining', 'shirkat', 'jamiyati',
-    'xoldingi', 'tresti', 'birlashmasi', 'uyushmasi',
-    # кондитерские и другие частые
-    'qandolat', 'uyi', 'choyxonasi', 'shirinliklar',
-    # дополнительные дескрипторы
-    'galereyasi', 'parki', 'xonadoni', 'muassasasi',
-    'kompleksi', 'klubi', 'markazi', 'shahobchasi',
-    # фермерское хозяйство — все варианты написания первого слова
-    "xo'jaligi", "xo'jaligi", "xojaligi",
+    'sanatoriyasi', 'sanatoriysi', 'kurorti', 'pansionati', 'xosteli',
+    # филиал/подразделение — чтобы дедуп ловил "filiali filiali"
+    'filiali', 'filial', "bo'limi", "bo‘limi", 'vakili',
 })
+
+
+# Узбекские города/регионы (латиница) — для вырезания гео-шума из офиц. названий.
+# Локатив -da ("Navoiyda", "Buxoroda") в конце официального названия — это адрес,
+# он не должен попадать в текст. Апострофы в списке нормализуются при матчинге.
+_UZ_CITIES = [
+    'Toshkent', 'Samarqand', 'Buxoro', "Farg'ona", 'Andijon', 'Namangan',
+    'Qarshi', 'Nukus', 'Urganch', 'Navoiy', 'Termiz', 'Jizzax', 'Guliston',
+    "Qo'qon", "Marg'ilon", 'Sirdaryo', 'Surxondaryo', 'Xorazm', 'Chirchiq',
+    'Angren', 'Bekobod', 'Olmaliq', 'Zarafshon', 'Denov', 'Kogon',
+]
+_UZ_CITY_LOCATIVE_RE = re.compile(
+    r'\s+(?:' + '|'.join(
+        c.replace("'", "['‘’ʻʼ]") for c in _UZ_CITIES
+    ) + r')(?:da|dagi|ga|dan|ning)?\b\.?',
+    re.IGNORECASE,
+)
+
+
+def _strip_uz_city(name: str) -> str:
+    """Убирает узбекский город (в т.ч. в локативе -da) из хвоста официального названия."""
+    return _UZ_CITY_LOCATIVE_RE.sub('', name).strip()
+
+
+def _is_service_company(ru_text: str, name: str = "") -> bool:
+    """Компания оказывает услуги (HoReCa/связь/сервис), а не производит товары.
+
+    Влияет на выбор лексики: 'Xizmatlar assortimentiga' vs 'Mahsulotlar...',
+    'range of services' vs 'product line'. При явном производстве — False.
+    """
+    src = re.sub(r'<[^>]+>', ' ', f'{ru_text or ""} {name or ""}')
+    if re.search(r'производ|выпуск|изготовл|переработк', src, re.IGNORECASE):
+        return False
+    return bool(re.search(
+        r'услуг|обслуживан|гостиниц|отел[ья]|ресторан|кафе|салон|клиник|'
+        r'поликлиник|связь|телеком|логистик|перевозк|страхов|консалт|'
+        r'туриз|турагент|образован|медицин|ломбард|прачечн|клининг',
+        src, re.IGNORECASE))
 
 
 # ─── Промпты ─────────────────────────────────────────────────────────────────
@@ -635,8 +624,6 @@ PROMPT_RU = """Ты редактор корпоративных описаний
 ПРАВИЛА ТЕКСТА:
 - 3-5 предложений, сохраняй объём исходного текста — не урезай
 - Только факты: чем занимается, какие услуги, что производит — конкретные товары/услуги, без общих слов
-- ⚠️ ИСПРАВЛЯЙ ЛОГИЧЕСКИЕ ОШИБКИ ОРИГИНАЛА: если в исходнике написано «ассортимент включает оптовую и розничную торговлю» — это ошибка (торговля — канал сбыта, не товар). Перепиши правильно: опиши ЧТО продаётся, а как (оптом/в розницу) упомяни отдельно. НЕ НАСЛЕДУЙ логические ошибки оригинала.
-- ⚠️ НЕ ДОБАВЛЯЙ характеристики и свойства, которых нет в оригинале: нельзя превращать «нетканый материал» в «деликатный нетканый материал», «кабели» в «высококачественные кабели». Только то, что есть в источнике.
 - ⚠️ КОНКРЕТИКА ЧЕРЕЗ ПЕРЕЧИСЛЕНИЕ: если в тексте есть материалы — называй их (МДФ, полипропилен, шерсть, ПВХ, алюминий). Если есть категории — называй их (мужские/женские/детские, оптом/в розницу, бытовые/промышленные). Если есть виды продукции — перечисляй через запятую или тире. НЕ заменяй конкретный список словом "различные" или "разнообразные".
 - СТРУКТУРА: 1-е предложение = основной продукт/деятельность. 2-е предложение = конкретный ассортимент, материалы, типы. 3-е предложение (если нужно) = дополнительное направление или экспорт. Каждое предложение добавляет НОВУЮ информацию.
 - ЗАПРЕЩЕНО рекламные слова и фразы: "широкий спектр", "высокое качество", "качественный/качественные/качественными", "комфортный", "динамично развивается", "является лидером", "квалифицированные специалисты", "что позволяет удовлетворить", "разнообразные", "различные", "уникальный", "особый", "индивидуальный подход", "эффективный/эффективно", "надёжный/надёжно", "профессиональный", "для улучшения", "на высоком уровне", "в сфере", "в области", "современный", "передовой", "инновационный", "оптимальный", "ориентируясь на потребности"
@@ -644,12 +631,8 @@ PROMPT_RU = """Ты редактор корпоративных описаний
 - ⚠️ ПРАВИЛО КОНКРЕТИКИ: каждое предложение должно называть КОНКРЕТНЫЙ товар, услугу или факт. ЗАПРЕЩЕНО: "рассматривает возможности экспорта", "изучает возможности расширения", "основные направления включают оптовую и розничную реализацию продукции", "выпускаются изделия, которые применяются в строительстве" — это пустышки без конкретики. Предложения типа "Деятельность включает внутренние и внешнеэкономические операции" — запрещены, потому что не говорят ЧТО именно производится или продаётся.
 - ⚠️ СТРОГО ЗАПРЕЩЕНО географические предложения-пустышки: "деятельность охватывает [город/область/регион]", "деятельность компании охватывает", "деятельность предприятия охватывает", "реализуется на рынке Узбекистана", "на внутреннем рынке", "на отечественном рынке", "ориентировано на рынок", "в данных сегментах", "основное направление деятельности ориентировано". Такие предложения ничего не говорят о том ЧЕМ занимается компания — удаляй их полностью. ИСКЛЮЧЕНИЕ: "экспортирует на рынки СНГ/зарубежные рынки" — это факт, оставляй.
 - ⚠️ СТРОГО ЗАПРЕЩЕНО: "производственные мощности расположены в [месте]", "производственные мощности находятся в [месте]", "производственные мощности размещены в [месте]" — это пустышки без содержания. Если хочешь упомянуть производство — пиши ЧТО там производят, а не где расположены мощности.
-- ⚠️ ЗАПРЕЩЕНА ТАВТОЛОГИЯ: нельзя использовать однокоренные слова в соседних предложениях. Если в 1-м предложении «текстильная продукция» — во 2-м нельзя писать «текстильные изделия» или «текстильная промышленность». Меняй корень: ткань → полотно → материал → волокно.
+- ⚠️ ГЕО-ШУМ В ОПИСАНИИ: НЕ перечисляй конкретные локации, курорты, зоны отдыха, местности, районы, регионы ("курорты Чимгана", "другие зоны отдыха в регионе", "в Ташкентской области"). Обобщай до ФУНКЦИЙ/деятельности: вместо "Ключевые локации включают курорты X и зоны отдыха" → "Деятельность центра охватывает активный досуг и курортное обслуживание". ИСКЛЮЧЕНИЕ: название компании в кавычках не трогай, даже если в нём есть топоним.
 - ⚠️ ЗАПРЕЩЕНО повторять одну и ту же информацию в разных предложениях. Если первое предложение говорит "производит автозапчасти" — не пиши "изготавливает компоненты для автомобильной отрасли" в следующем предложении.
-
-ПРИМЕР (Было → Стало):
-❌ «Компания производит текстильную продукцию. Ассортимент включает текстильные изделия. Предприятие работает в текстильной отрасли.»
-✅ «ООО "ALFA" выпускает хлопчатобумажные и синтетические ткани. Ассортимент охватывает полотна для одежды, постельного белья и технических нужд.»
 - ⚠️ СТРОГО ЗАПРЕЩЕНО упоминать сайт/сайты, официальный сайт, веб-сайт, веб-ресурс, онлайн-ресурс, интернет, соцсети, контакты, каталог товаров.
 - ⚠️ ЗАПРЕЩЕНО: "что позволяет", "что обеспечивает", "ориентируясь на потребности клиентов", "ориентируясь на нужды клиентов", "удовлетворить потребности клиентов", "удовлетворяющие потребности", "широкий ассортимент", "с учётом специфических требований", "с учётом индивидуальных требований", "пользуются спросом среди потребителей", "в соответствии со стандартами качества", "ориентировано на рынок", "фокусируется на выполнении заказов", "развивается направление"
 - ⚠️ СТРОГО ЗАПРЕЩЕНО упоминать города и регионы: Ташкент, Самарканд, Бухара, Фергана, Андижан, Наманган, Карши, Нукус, Термез, Джизак, Гулистан, Навои, Ургенч, Коканд, Маргилан, Нурафшон, а также любые сочетания "[Город]ская область", "[Город]ский район", "[Город]ский регион". ИСКЛЮЧЕНИЕ: только если компания работает по всей стране — тогда допустимо одно упоминание "на территории Узбекистана". НЕЛЬЗЯ упоминать локацию в каждом предложении — если уж упоминаешь географию, это должно быть один раз и только если это важный факт (например, единственный завод в регионе).
@@ -664,7 +647,6 @@ PROMPT_RU = """Ты редактор корпоративных описаний
   Вариант В: начни с производства → потом реализация → потом ассортимент конкретно
   Вариант Г: начни с рынка/клиентов → потом что производит/поставляет → потом масштаб
   Примеры разных начал: "Выпускает...", "Производит и реализует...", "Среди основных продуктов —", "К ключевым направлениям относятся...", "Поставляет на рынок...", "Изготавливает и экспортирует..."
-- ⚠️ ЛЕКСИЧЕСКОЕ РАЗНООБРАЗИЕ: не повторяй одно и то же существительное или прилагательное в соседних предложениях — используй синонимы или перефразируй. Например, если в первом предложении "продукция", во втором используй "товары", "изделия", "ассортимент". Если в первом "производство", во втором — "выпуск", "изготовление". Текст должен читаться плавно и профессионально, без словесных повторов.
 - ⚠️ ЧЕРЕДОВАНИЕ ГЛАГОЛОВ: каждое предложение — РАЗНЫЙ глагол. "занимается" — не более одного раза и ТОЛЬКО если нет лучшей замены.
   СЛОВАРЬ профессиональных глаголов для первого предложения (выбирай подходящий по смыслу):
   производство: выпускает / изготавливает / производит / осуществляет выпуск / наладил производство
@@ -740,57 +722,41 @@ PROMPT_UZ = """Переведи текст на узбекский язык (л�
 MAHSULOT: [что производит/продаёт/делает компания — конкретные товары/услуги из текста]
 
 ШАГ 2: Напиши полный перевод. В первом предложении ОБЯЗАТЕЛЬНО включи MAHSULOT перед глаголом:
-✅ "SARBON MEBEL" MChJ [mahsulot]ni ishlab chiqaradi va sotadi.
-✅ "BUXARA GRAND" XK [mahsulot]ni ishlab chiqaradi.
+✅ MChJ "SARBON MEBEL" [mahsulot]ni ishlab chiqaradi va sotadi.
+✅ XK "BUXARA GRAND" [mahsulot]ni ishlab chiqaradi.
 
-СТРУКТУРА НАЗВАНИЯ КОМПАНИИ — КРИТИЧНО:
-• Аббревиатуры форм (MChJ, XK, AJ, QK и т.п.) — ПОСЛЕ имени в кавычках (узбекский стандарт):
-  ✅ "SARBON MEBEL" MChJ mebel ishlab chiqaradi.   ❌ MChJ "SARBON MEBEL" ...
-  ✅ "BUXARA GRAND" XK ishlab chiqaradi.            ❌ XK "BUXARA GRAND" ...
-• Словесные дескрипторы (galereya, restoran, kafe, do'kon, zavod и т.п.) — ПОСЛЕ имени, ОДИН РАЗ, в посессивной форме:
-  ✅ "ONTO.ARTE" galereyasi bo'yoqlar ishlab chiqaradi.
-  ✅ "BROOKLYN" do'koni alkogolli mahsulotlarni sotadi.
-  ❌ "ONTO.ARTE" galereyasi galereyasi ... (дескриптор ДВАЖДЫ — ЗАПРЕЩЕНО)
-  ❌ "BROOKLYN" do'koni do'koni ...       (дескриптор ДВАЖДЫ — ЗАПРЕЩЕНО)
-
-ТЕХНИЧЕСКИЕ АББРЕВИАТУРЫ из оригинала (ПЭТ → PET, ПВХ → PVC, МДФ → MDF и т.п.) — сохраняй как латинский аналог, НЕ УДАЛЯЙ. Пример: «ПЭТ-преформ» → «PET-preformalar».
-
-ЛЕКСИЧЕСКОЕ РАЗНООБРАЗИЕ И ТАВТОЛОГИЯ: не повторяй однокоренные слова в соседних предложениях. Если в первом предложении «to'qimachilik mahsulotlari» — во втором нельзя писать «to'qimachilik buyumlari» или «to'qimachilik sanoati». Используй синонимы: mahsulot / tovar / buyum / assortiment; ishlab chiqarish / tayyorlash / yasash; sotadi / yetkazib beradi / taklif etadi.
-ЗАПРЕЩЁН ПАССИВНЫЙ ЗАЛОГ И КАНЦЕЛЯРИЗМЫ: вместо «ishlab chiqarish bilan shug'ullanadi» пиши «ishlab chiqaradi». Только активные глаголы.
-ЗАПРЕЩЕНО КАЛЬКИРОВАТЬ РУССКИЙ СИНТАКСИС: не переноси русские конструкции дословно. ❌ «suyuq shisha (natriy silikat)ni» → ✅ «suyuq shisha, ya'ni natriy silikatni» или просто «suyuq shishani».
-КРИТИЧНО: не добавляй прилагательные и свойства, которых нет в оригинале.
-КРИТИЧНО: исправляй логические ошибки оригинала.
-
-ПРИМЕР (Было → Стало):
-❌ «"ALFA" MChJ to'qimachilik mahsulotlarini ishlab chiqarish bilan shug'ullanadi. Assortiment to'qimachilik buyumlarini o'z ichiga oladi. Faoliyat to'qimachilik sanoatiga yo'naltirilgan.»
-✅ «"ALFA" MChJ jun, paxta va sintetik gazlamalar ishlab chiqaradi va sotadi. Assortimentga kiyim-kechak va uy-ro'zg'or uchun matolar kiradi.»
-ЗАПРЕЩЕНО: первое предложение без конкретного названия товара/услуги. Нельзя писать просто "ishlab chiqarish bilan shug'ullanadi", "ishlab chiqaradi va sotadi" или "mahsulotlarini ishlab chiqaradi" без указания ЧТО именно.
-⚠️ ДЛИННЫЕ НАЗВАНИЯ БЕЗ КАВЫЧЕК: если название компании длинное (министерство, завод, государственное предприятие) — ОБЯЗАТЕЛЬНО включай MAHSULOT перед глаголом:
-✅ YOG'OCHNI QAYTA ISHLASH ZAVODI ... yog'och mahsulotlarini ishlab chiqaradi va sotadi.
-❌ YOG'OCHNI QAYTA ISHLASH ZAVODI ... ishlab chiqaradi va sotadi.  ← MAHSULOT пропущен! — перед глаголом должен стоять конкретный продукт из MAHSULOT: ✅ metalloprokat ishlab chiqaradi va sotadi  ❌ ishlab chiqarish bilan shug'ullanadi
+ЗАПРЕЩЕНО: первое предложение без указания ЧТО производят/продают.
 РЕГИСТР: аббревиатуры форм (MCHJ, XK, AJ и т.п.) — ВСЕГДА заглавными. Дескрипторы (kompaniya, korxona, zavod, kafe и т.п.) — с заглавной ТОЛЬКО в начале предложения, в середине — строчными.
 ЗАПРЕЩЕНО: упоминать города (Toshkent, Samarqand, Buxoro, Farg'ona и т.д.)
 
-Каждое предложение переводи ПОЛНОСТЬЮ — ничего не пропускай, включая все уточнения (для дома и офиса → uy va ofis uchun, оптом и в розницу → ulgurji va chakana va h.k.).
-
-ПРОФЕССИОНАЛЬНЫЙ СЛОВАРЬ ГЛАГОЛОВ — чередуй, не повторяй один и тот же:
-  производство/изготовление: ishlab chiqaradi / tayyorlaydi / yasaydi / ishlab chiqarish bilan shug'ullanadi
-  продажа/поставка: sotadi / yetkazib beradi / ta'minlaydi / amalga oshiradi / savdo qiladi
-  услуги: xizmat ko'rsatadi / bajaradi / amalga oshiradi / taqdim etadi
-  специализация: ixtisoslashgan / faoliyat yuritadi / yo'naltirilgan
-  ассортимент: assortimentga kiradi / o'z ichiga oladi / mavjud / taklif etiladi
-ЗАПРЕЩЕНО: писать просто "sotadi" когда в оригинале есть конкретика — переводи полностью.
-
+Каждое предложение переводи ПОЛНОСТЬЮ — ничего не пропускай.
 Сохрани теги <p> и </p>.
+
+СЕМАНТИКА — НЕ СЛИВАЙ РАЗНЫЕ ОБЪЕКТЫ В ОДНО ДЕЙСТВИЕ:
+- Объект РЕМОНТА/обслуживания — это ОБОРУДОВАНИЕ (uskunalar, mashinalar), а НЕ запчасти.
+- Запчасти и комплектующие (ehtiyot qismlar, butlovchi qismlar) — это АССОРТИМЕНТ товаров, они входят в перечень продукции, их НЕ ремонтируют.
+❌ НЕПРАВИЛЬНО (склеены объекты): ...ehtiyot qismlar va butlovchi qismlarni ta'mirlaydi...
+✅ ПРАВИЛЬНО (объекты разделены): ...sanoat uskunalarini ... ta'mirlash bilan shug'ullanadi. Mahsulotlar assortimentiga ... ehtiyot qismlar va butlovchi qismlar kiradi.
+Сохраняй ту же привязку объектов к действиям, что и в русском оригинале: что ремонтируют — то ремонтируют, что в ассортименте — то в ассортименте.
 
 ПРАВИЛА УЗБЕКСКОЙ ОРФОГРАФИИ:
 - ОБЯЗАТЕЛЬНО используй правильные апострофы: o' и g' (перевёрнутые) — НЕ o' и g' (прямые). Примеры: to'g'ri, g'oya, o'rmon, so'z, g'isht.
+- НЕ транслитерируй русские прилагательные/термины — используй узбекские эквиваленты:
+  «санаторно-курортное лечение» → sanatoriy-kurort davolash (НЕ sanatorno-kurort)
+  «опорно-двигательный аппарат» → tayanch-harakat tizimi
 - НЕ копируй русские слова напрямую. Используй узбекские/международные эквиваленты:
   «канцелярия» → kanselyariya (не kantselyariya)
   «стеллаж» → stelajlar или tokchalar (не stellajlar)
   «шкаф-купе» → sürüşli shkaf или eshikli shkaf
   «бухгалтерский шкаф» → hujjatlar shkaflari
   «шкаф для раздевалки» → kiyim-kechak shkaflari
+
+B2B-ЛЕКСИКА (НЕ буквализм):
+- «частные клиенты», «физические лица» → jismoniy mijozlar / jismoniy shaxslar (НЕ xususiy mijozlar — это буквализм, ошибка).
+- Для компаний СФЕРЫ УСЛУГ (гостиница, кафе, ресторан, связь, сервис) перечень — это УСЛУГИ:
+  пиши «Xizmatlar assortimentiga ... kiradi» или «Xizmatlar turlariga ... kiradi», а НЕ «Mahsulotlar ...».
+- НЕ упрощай конкретику услуг: «услуги проживания и питания» → joylashtirish va ovqatlanish xizmatlari
+  (НЕ абстрактное «xizmatlarni taqdim etadi»). Сохраняй все конкретные услуги/товары из оригинала.
 
 Отвечай строго в формате:
 MAHSULOT: ...
@@ -800,16 +766,6 @@ PROMPT_EN = """Translate the text to English. Do not leave any Russian words in 
 
 RULES:
 - Translate every sentence FULLY — do not skip or shorten anything
-- CRITICAL: do NOT add adjectives, properties, or characteristics absent from the source. If the source says "non-woven fabric" — do NOT write "delicate non-woven fabric". If it says "cables" — do NOT write "high-quality cables". Translate only what is explicitly stated.
-- CRITICAL: fix logical errors in the source — if the original says "the range includes wholesale and retail trade", that is wrong (trade is a channel, not a product). Restate it correctly: describe WHAT is sold, mention wholesale/retail separately if needed.
-- NO TAUTOLOGY: never use words with the same root in adjacent sentences. If sentence 1 has "textile products" — sentence 2 cannot have "textile goods" or "textile industry". Change the root word entirely: fabric → cloth → material → fiber.
-- ACTIVE VERBS ONLY: "produces", "manufactures", "supplies", "exports" — never "is engaged in production", "carries out manufacturing", "provides services in the field of".
-- NO CALQUING: do not translate Russian syntax literally. Write natural English B2B.
-- LEXICAL VARIETY: do not repeat the same noun in adjacent sentences — use synonyms.
-
-EXAMPLE (Before → After):
-❌ "The company produces textile products. The range includes textile goods. The enterprise operates in the textile industry."
-✅ "LTD 'ALFA' manufactures cotton and synthetic fabrics. The range covers apparel, bedding, and industrial cloth."
 - VARY verbs across sentences. Professional vocabulary to rotate:
   Manufacturing: produces / manufactures / fabricates / processes / assembles / outputs
   Trade/supply: supplies / delivers / distributes / exports / trades in / markets
@@ -825,6 +781,7 @@ EXAMPLE (Before → After):
   • Branch/filial: The "NAME" branch — name first, descriptor after. ✅ The "PANDA" branch specializes... ❌ Branch "PANDA" is engaged...
 - FORBIDDEN: bare "engaged in" without "is" — always write "is engaged in" or use a different verb (produces / supplies / specializes in / manufactures / provides)
 - USE STANDARD ENGLISH INDUSTRY TERMS — do not translate Russian product names word-for-word. Examples: «шкафы-купе» → "sliding-door wardrobes" (not "wardrobe cabinets"), «шкаф для раздевалки» → "lockers" (not "locker room cabinets"), «бухгалтерский шкаф» → "filing cabinet" (not "accounting cabinet"), «стеллаж» → "shelving unit" or "rack", «кассетный кондиционер» → "cassette air conditioner". Use the term a native English speaker in that industry would use.
+- B2B TERMS (no literalism): «private/individual clients», «физические лица» → "individual clients" (NOT "private clients"). For a service business (hotel, cafe, telecom, services) the offering list is SERVICES: write "The range of services includes..." (NOT "product line/range").
 - FORBIDDEN: city names (Tashkent, Samarkand, Bukhara, Fergana, Andijan etc.) — exception only if the company operates nationwide
 - FORBIDDEN: pronouns it/its/they/their referring to the company — use the company name or "the enterprise/company"
 - Keep <p> and </p> tags
@@ -843,50 +800,6 @@ EXAMPLES:
 Only translation:"""
 
 
-PROMPT_EXTRACT_FACTS = """Выпиши только сухие факты о компании из текста ниже. Формат — по одному факту на строку, без нумерации, без прилагательных и рекламы.
-
-Включай:
-- что производит (с конкретными товарами и материалами если указаны)
-- что продаёт или поставляет
-- какие услуги оказывает
-- дополнительные направления деятельности
-- экспорт (если упомянут, с указанием рынков)
-
-НЕ включай: рекламные эпитеты, каналы сбыта как товары (оптовая/розничная торговля — только если это профиль компании), города и регионы.
-
-Текст: {text}"""
-
-PROMPT_UZ_FROM_FACTS = """Quyidagi faktlar asosida kompaniya haqida {n} ta professional uzbekcha gap yozing (lotin yozuvi, kirillcha yo'q).
-
-Kompaniya: {official_name}
-Faktlar:
-{facts}
-
-QOIDALAR:
-- Birinchi gapda kompaniya nomi va asosiy mahsulot/xizmat aniq bo'lishi shart
-- Faol fe'llar: ishlab chiqaradi / sotadi / yetkazib beradi / taqdim etadi / eksport qiladi
-- Qo'shni gaplarda bir xil so'zni takrorlamang — sinonimlar ishlating
-- Manbada bo'lmagan xususiyat yoki sifat qo'shmang
-- Shahar nomlarini eslatmang
-- To'g'ri apostrof: o' va g' (o'girilgan) — to'g'ri, g'oya, so'z
-- <p> va </p> teglari bilan o'rang"""
-
-PROMPT_EN_FROM_FACTS = """Write a {n}-sentence professional B2B description in English for the company below, using only the facts provided. Do not translate — write naturally in English.
-
-Company: {official_name}
-Facts:
-{facts}
-
-RULES:
-- First sentence: state the company name and its primary product/service explicitly
-- Use strong active verbs: produces, manufactures, supplies, distributes, provides, exports, delivers
-- Do not repeat the same noun or verb in adjacent sentences — use synonyms
-- Do not add adjectives or properties not listed in the facts
-- No city or region names
-- No pronouns (it/its/they/their) referring to the company — use the company name or "the enterprise/company"
-- Wrap in <p> and </p> tags"""
-
-
 PROMPT_VALIDATE_UZ = """Matnda qoidabuzarliklarni tekshir. Faqat ikkita satr bilan javob ber:
 1-satr: PASS yoki FAIL
 2-satr (faqat FAIL bo'lsa): qoidabuzarliklarni nuqtali vergul bilan sanab o't
@@ -897,9 +810,8 @@ TEKSHIR:
 3. Reklama iboralari: keng assortiment, yuqori sifat, individual yondashuv, turli xil, xilma-xil, kafolatlaydi, samarali, zamonaviy
 4. Shahar nomlari (Toshkent, Samarqand, Buxoro, Farg'ona, Andijon va boshqalar) — agar kompaniya butun mamlakat miqyosida ishlamasa
 5. Gaplarning takrorlanishi — bir xil ma'lumot ikki gapda
-6. Bo'sh so'ngi gaplar: "ichki bozorda amalga oshiriladi", "turli mijozlar uchun mo'ljallangan", "talablariga javob beradi", "faoliyat ishlab chiqarish va ulgurji savdoni qamrab oladi", "faoliyat ... qamrab oladi"
-7. Birinchi gapda mahsulot nomi yo'q: "ishlab chiqaradi va sotadi", "ishlab chiqarish bilan shug'ullanadi", "xizmatlarni taqdim etadi" yoki "mahsulotlarini ishlab chiqaradi" (aniq nom ko'rsatmasdan) — mahsulot ANIQ nomlanishi kerak (masalan: "yog'och mahsulotlarini", "qandolat mahsulotlarini", "to'qimachilik mahsulotlarini")
-8. Kiriллица harflari (kotirovkalardagi nomlardan tashqari)
+6. Bo'sh so'ngi gaplar: "ichki bozorda amalga oshiriladi", "turli mijozlar uchun mo'ljallangan", "talablariga javob beradi"
+7. Kiriллица harflari (kotirovkalardagi nomlardan tashqari)
 
 MATN:
 {text}"""
@@ -948,10 +860,7 @@ _AD_SENTENCE_PATTERNS = re.compile(
     r'|представлен\w+\s+на\s+официальн'
     r'|на\s+официальн\w+\s+сайт'
     r'|информаци\w+\s+о\s+своих\s+услугах\s+на'
-    r'|(?:visit|see|find\s+(?:more|information)\s+on|available\s+on|catalog\s+available\s+on|learn\s+more\s+on)\b[^.!?]*\bwebsite'
-    r'|(?:official|company|our)\s+website'
-    r'|website\s+(?:contains|provides|has\s+|at\s+)'
-    r'|web[\s\-]?site\s+(?:contains|provides|has\s+)|catalog\s+of\s+(?:goods|products|services)'
+    r'|website|official\s+site|web[\s\-]?site|catalog\s+of\s+(?:goods|products|services)'
     r'|rasmiy\s+sayt|saytida\s+batafsil|katalog\s+haqida'
     # Рекламные клише — целые предложения
     r'|является\s+лидером'
@@ -989,10 +898,12 @@ _AD_SENTENCE_PATTERNS = re.compile(
     # Фиктивные «партнёрство с заводами»
     r'|взаимодейству\w+\s+с\s+(?:производственными\s+)?предприятиями'
     r'|сотрудничает\s+с\s+(?:производственными\s+)?предприятиями'
+    # UZ: "Asosiy yo'nalishlar ... o'z ichiga oladi"
+    r"|[Aa]sosiy\s+yo['''ʻʼ]nalishlar[^.!?]*o['''ʻʼ]z\s+ichiga\s+oladi"
     # UZ: "hamkorlik qiladi" как единственное содержание
     r'|ishlab\s+chiqarish\s+korxonalari\s+bilan\s+hamkorlik\s+qiladi'
     r'|деятельность\s+ведется\s+на\s+внутреннем\s+рынке'
-    r"|faoliyat\s+(?:O[''']zbekiston\s+)?ichki\s+bozorida\s+olib\s+boriladi"
+    r"|faoliyat\s+(?:O[‘’’]zbekiston\s+)?ichki\s+bozorida\s+olib\s+boriladi"
     r'|для\s+различных\s+сфер\s+применения'
     r'|для\s+различных\s+(?:категорий|областей|направлений)'
     r'|удовлетворить\s+потребности\s+клиентов'
@@ -1038,12 +949,7 @@ _AD_SENTENCE_PATTERNS = re.compile(
     r'|в\s+данных\s+сегментах'
     r'|которые\s+пользуются\s+спросом'
     r'|спросом\s+среди\s+(?:местных|конечных|потенциальных)\s+\w+'
-    r'|на\s+(?:отечественном|внутреннем)\s+рынке\s+(?:страны|республики|Узбекистана)'
-    r'|производственный\s+процесс\s+сосредоточен'
-    r'|(?:продаёт|реализует|продает)\s+свою\s+продукцию\s+на\s+рынке'
-    r'|в\s+сферу\s+деятельности\s+входит\s+реализация'
-    r'|в\s+сферу\s+деятельности\s+входит\s+(?:производство|выпуск|изготовление)\s+\w+\s+на\s+территории'
-    r'|деятельность\s+охватывает\s+(?:как\s+производство|производство\s+и\s+реализацию)',
+    r'|на\s+(?:отечественном|внутреннем)\s+рынке\s+(?:страны|республики|Узбекистана)',
     re.IGNORECASE,
 )
 
@@ -1104,67 +1010,6 @@ _PRONOUN_POSSESSIVE_RE2 = re.compile(
     re.IGNORECASE,
 )
 
-# Объектное местоимение после глагола: "доставляет её клиентам" → "доставляет клиентам"
-_PRONOUN_OBJ_RE = re.compile(
-    r'(?<=\w)\s+(её|его|их)\s+(?=\w)',
-    re.IGNORECASE,
-)
-
-# Канцеляризмы → активные глаголы (применяется ДО валидации)
-_CANCEL_RU = [
-    # Восстанавливаем правильный регистр смешанных аббревиатур
-    (re.compile(r'\bИндп\b'), 'ИндП'),
-    (re.compile(r'\bиндп\b', re.I), 'ИндП'),
-    # Канцеляризмы → активные глаголы
-    (re.compile(r'\bзанимается\s+производством\s+и\s+(?:реализацией|продажей)\b', re.I), 'производит и реализует'),
-    (re.compile(r'\bзанимается\s+производством\b', re.I), 'производит'),
-    (re.compile(r'\bзанимается\s+реализацией\b', re.I), 'реализует'),
-    (re.compile(r'\bзанимается\s+продажей\b', re.I), 'продаёт'),
-    (re.compile(r'\bзанимается\s+поставками?\b', re.I), 'поставляет'),
-    (re.compile(r'\bзанимается\s+розничной\s+торговлей\b', re.I), 'ведёт розничные продажи'),
-    (re.compile(r'\bзанимается\s+оптовой\s+торговлей\b', re.I), 'осуществляет оптовые поставки'),
-    (re.compile(r'\bведёт\s+(?:оптовую|розничную)\s+(?:продажу|торговлю)\b', re.I), 'поставляет'),
-    (re.compile(r'\bосуществляет\s+производство\b', re.I), 'производит'),
-    (re.compile(r'\bосуществляет\s+поставки\b', re.I), 'поставляет'),
-    (re.compile(r'\bосуществляет\s+реализацию\b', re.I), 'реализует'),
-    (re.compile(r'\bосуществляет\s+продажу\b', re.I), 'продаёт'),
-    (re.compile(r'\bосуществляет\s+(?:оптовую|розничную)\s+торговлю\b', re.I), 'поставляет'),
-    (re.compile(r'\bведёт\s+оптовую\s+торговлю\b', re.I), 'поставляет оптом'),
-]
-_CANCEL_EN = [
-    (re.compile(r'\bis\s+engaged\s+in\s+the\s+production\s+and\s+sale\b', re.I), 'produces and sells'),
-    (re.compile(r'\bis\s+engaged\s+in\s+the\s+production\b', re.I), 'produces'),
-    (re.compile(r'\bis\s+engaged\s+in\s+the\s+sale\b', re.I), 'sells'),
-    (re.compile(r'\bis\s+engaged\s+in\s+providing\b', re.I), 'provides'),
-    (re.compile(r'\bis\s+engaged\s+in\s+manufacturing\b', re.I), 'manufactures'),
-    (re.compile(r'\bis\s+engaged\s+in\s+(?:retail|wholesale)\s+(?:trade|sales?|trading)\b', re.I), 'sells'),
-    (re.compile(r'\bconducts\s+(?:wholesale|retail)\s+(?:trade|sales?)\b', re.I), 'sells'),
-    (re.compile(r'\bprovides\s+services\s+in\s+the\s+field\s+of\b', re.I), 'provides'),
-    (re.compile(r'\bcarries\s+out\s+the\s+production\b', re.I), 'produces'),
-    (re.compile(r'\bcarries\s+out\s+(?:the\s+)?sale\b', re.I), 'sells'),
-    (re.compile(r'\bForeign\s+[Ee]nterprise\b'), 'FE'),
-]
-_CANCEL_UZ = [
-    (re.compile(r"\bo['ʻʼ]z\s+ichiga\s+oladi\b", re.I), 'kiradi'),
-    (re.compile(r'\bsotish\s+va\s+ishlab\s+chiqarish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'ishlab chiqaradi va sotadi'),
-    (re.compile(r'\bishlab\s+chiqarish\s+va\s+sotish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'ishlab chiqaradi va sotadi'),
-    (re.compile(r'\bsotish\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'sotadi'),
-    (re.compile(r'\bsavdo\s+bilan\s+shug[''ʻʼ]ullanadi\b', re.I), 'sotadi'),
-    (re.compile(r'\bamalga\s+oshiradi\s+ishlab\s+chiqarish\b', re.I), 'ishlab chiqaradi'),
-    (re.compile(r'\bamalga\s+oshiradi\s+sotish\b', re.I), 'sotadi'),
-    (re.compile(r'\brealizatsiya\s+qilish\b', re.I), "sotish"),
-    (re.compile(r'\brealizatsiya\s+qiladi\b', re.I), "sotadi"),
-    (re.compile(r'\bsavdo\s+belgisi\b', re.I), 'SB'),
-    (re.compile(r'\bxorijiy\s+korxonasi\b', re.I), 'XK'),
-    # "oilaviy korxonasi oilaviy [product]" → убираем второй oilaviy (ошибка модели)
-    (re.compile(r'(oilaviy\s+korxonasi)\s+oilaviy\b', re.I), r'\1'),
-    # Тройной дескриптор фермерского хозяйства → оставляем один
-    (re.compile(r"(?:fermerlik|fermer)\s+xo[''ʻʼ]jaligi(?:\s+(?:fermerlik|fermer)\s+xo[''ʻʼ]jaligi)+", re.I),
-     "fermerlik xo'jaligi"),
-    # "IP" как слово (ip = пряжа/нить) → строчная, чтобы не путать с формой ИП
-    (re.compile(r'\bIP\b(?!\s*(?:address|addr|\d))'), 'ip'),
-]
-
 # Повтор глагола "занимается" в тексте
 _ZAJMAETSYA_RE = re.compile(r'\bзанимается\b', re.IGNORECASE)
 
@@ -1219,8 +1064,6 @@ def _strip_ad_sentences(text: str) -> str:
     # Убираем посессивные местоимения: "В её ассортименте" → "В ассортименте"
     inner = _PRONOUN_POSSESSIVE_RE.sub('В ', inner)
     inner = _PRONOUN_POSSESSIVE_RE2.sub('', inner)
-    # Убираем объектные местоимения в середине: "доставляет её клиентам" → "доставляет клиентам"
-    inner = _PRONOUN_OBJ_RE.sub(' ', inner)
 
     # Разбиваем на предложения, фильтруем рекламные
     sentences = re.split(r'(?<=[.!?])\s+', inner.strip())
@@ -1251,16 +1094,7 @@ def _strip_ad_sentences(text: str) -> str:
     inner = re.sub(r'\.{2,}', '.', inner)          # убираем двойные точки
     # Убираем предложения где после inline-чистки осталось менее 3 слов
     sentences2 = re.split(r'(?<=[.!?])\s+', inner.strip())
-
-    def _is_uz_stub(s):
-        """Возвращает True если предложение — только ALL-CAPS название + 1-2 глагола (семантически пустое)."""
-        words = s.split()
-        if len(words) < 3 or len(words) > 8:
-            return False
-        caps = sum(1 for w in words if re.match(r'^[A-Z\']{2,}', w))
-        return caps >= len(words) - 2  # почти все слова ALL-CAPS кроме 1-2 глаголов
-
-    inner = ' '.join(s for s in sentences2 if s and len(s.split()) >= 3 and not _is_uz_stub(s))
+    inner = ' '.join(s for s in sentences2 if s and len(s.split()) >= 3)
     # RU: первое слово после кавычек компании должно быть строчным
     # e.g. 'ООО "NAME" Занимается' → 'ООО "NAME" занимается'
     inner = re.sub(
@@ -1298,7 +1132,6 @@ def _call_api(client: OpenAI, prompt: str, lang_label: str,
                 model="gpt-4o",
                 messages=messages,
                 temperature=temperature,
-                timeout=60,
             )
             time.sleep(2)
             content = response.choices[0].message.content.strip()
@@ -1395,15 +1228,6 @@ def rewrite(client: OpenAI, text: str, company_name: str = "", subject: str = "A
     if not text or not text.strip():
         return text
 
-    # Нормализуем company_name с несколькими именами в кавычках через запятую:
-    # '"EVRO MASTER", "NUKUS EVRO MASTER" ООО' → '"NUKUS EVRO MASTER" ООО'
-    if re.search(r'[»"""][,]\s*[«"""]', company_name):
-        _qs = re.findall(r'[«"""]([^«"""»]+)[»"""]', company_name)
-        if len(_qs) > 1:
-            _form_only = re.sub(r'[«"""][^«"""»]+[»"""]\s*,?\s*', '', company_name).strip()
-            company_name = (f'"{_qs[-1]}"' + (f' {_form_only}' if _form_only else '')).strip()
-            clean_name = _qs[-1]
-
     if has_quotes:
         prompt_subject = subject
         prompt_clean = clean_name or company_name
@@ -1426,8 +1250,6 @@ def rewrite(client: OpenAI, text: str, company_name: str = "", subject: str = "A
         prompt = prompt + f"\n\n{sentence_hint}"
     result = _call_api(client, prompt, "ru") or text
     result = _strip_ad_sentences(result)
-    for _pat, _repl in _CANCEL_RU:
-        result = _pat.sub(_repl, result)
 
     # Чистящий шаг: убираем размытые фразы редактурой
     result = _clean_ru(client, result)
@@ -1454,41 +1276,15 @@ def _fix_false_form(original_ru: str, translated: str, lang: str, has_quotes: bo
     """Убирает форму компании из перевода, если её не было в оригинале."""
     # EN: убираем дублированное слово-форму/дескриптор (всегда, до раннего возврата)
     if lang == 'en':
-        # Сворачиваем полные формы в аббревиатуры перед кавычками: "Private Enterprise "N"" → PE "N""
-        _expand_to_abbr = [
-            (r'Private Enterprise', 'PE'),
-            (r'Joint Venture', 'JV'),
-            (r'Foreign Investment Enterprise', 'FIE'),
-            (r'Foreign Enterprise', 'FE'),
-            (r'Trade[- ]?[Mm]ark', 'TM'),
-            (r'Trademark', 'TM'),
-        ]
-        for _full, _abbr in _expand_to_abbr:
-            translated = re.sub(
-                r'\b' + _full + r'\b(\s+[«""""«])',
-                _abbr + r'\1',
-                translated,
-                flags=re.IGNORECASE,
-            )
         # Форма внутри кавычек: "PKF TULPAR LTD" → LTD "PKF TULPAR"
-        # Составные аббревиатурные формы — проверяем первыми (длиннее → приоритет)
-        _abbr_token = r'(?:LLC|LTD\.?|OJSC|CJSC|JSC|IE|PE|ME|SUE|JV|ALC|SP|MUE|UE|SE|PCB|LLP|FIE|FE|TC)'
-        _compound_abbr_pat = _abbr_token + r'(?:\s+' + _abbr_token + r')+'
+        _abbr_forms = r'(?:LLC|LTD\.?|OJSC|CJSC|JSC|IE|PE|ME|SUE|JV|ALC|SP|MUE|UE|SE|PCB|LLP)'
+        _compound_forms = r'(?:Family [Ee]nterprise|Family [Cc]ompany|Private [Ee]nterprise|Joint [Vv]enture|Foreign [Ee]nterprise)'
         translated = re.sub(
-            r'"([^"]{2,60}?)\s+(' + _compound_abbr_pat + r')\s*"',
-            lambda m: f'{m.group(2).strip()} "{m.group(1)}"',
-            translated,
-            flags=re.IGNORECASE,
-        )
-        # Одиночные аббревиатуры
-        translated = re.sub(
-            r'"([^"]{2,60}?)\s+(' + _abbr_token + r')\s*"',
+            r'"([^"]{2,60}?)\s+(' + _abbr_forms + r')\s*"',
             lambda m: f'{m.group(2).rstrip(".")} "{m.group(1)}"',
             translated,
             flags=re.IGNORECASE,
         )
-        # Составные словесные формы
-        _compound_forms = r'(?:Family [Ee]nterprise|Family [Cc]ompany|Private [Ee]nterprise|Joint [Vv]enture|Foreign [Ee]nterprise)'
         translated = re.sub(
             r'"([^"]{2,60}?)\s+(' + _compound_forms + r')\s*"',
             lambda m: f'{m.group(2)} "{m.group(1)}"',
@@ -1499,7 +1295,7 @@ def _fix_false_form(original_ru: str, translated: str, lang: str, has_quotes: bo
         _en_dup_words = r'(?:Enterprise|Company|Venture|Association|Bureau|Institute|Farm|Center|Foundation|Union|Plant|Factory|Studio|Salon|Clinic|Cafe|Hotel|Store|Market|School|Bank)'
         _any_open_quote = r'[«"""“«]'
         translated = re.sub(
-            r'((?:Private Enterprise|Family Enterprise|Family [Cc]ompany|Joint Venture|Foreign Enterprise|LLC|LTD\.?|JSC|OJSC|CJSC|JV|PE|IE|ME|SUE|LLP|SE)\s+)'
+            r'((?:Private Enterprise|Joint Venture|LLC|LTD\.?|JSC|OJSC|CJSC|JV|PE|IE|ME|SUE|LLP|SE)\s+)'
             + _en_dup_words + r'\s+' + _any_open_quote,
             lambda m: m.group(1) + m.group(0)[-1],
             translated,
@@ -1568,15 +1364,6 @@ def _fix_false_form(original_ru: str, translated: str, lang: str, has_quotes: bo
             bare_pat = re.compile(r'(<p>\s*)' + re.escape(bare) + r'(?!\w)', re.IGNORECASE)
             translated = bare_pat.sub(lambda m: m.group(1) + f'"{bare}"', translated, count=1)
 
-    # UZ fallback: кириллическое имя транслитерировано (ПЕНОПЛЭКС → PENOPLEKS) — кавычки не нашлись
-    if lang == 'uz' and '"' not in translated and has_quotes:
-        _uz_skip = {a.upper() for a in _UZ_FORM_ABBRS} | {'MCHJ', 'XK', 'KK', 'AJ', 'UK', 'IK', 'QK', 'GK'}
-        m_uz = re.match(r'(<p>\s*)([A-Z][A-Z0-9\'-]*(?:\s+[A-Z0-9\'-]+)*)\s+(\w)', translated)
-        if m_uz:
-            name_cand = m_uz.group(2).strip()
-            if name_cand.upper() not in _uz_skip and len(name_cand) >= 3:
-                translated = m_uz.group(1) + f'"{name_cand}"' + ' ' + m_uz.group(3) + translated[m_uz.end():]
-
     # EN fallback: если кириллический bare не найден в EN тексте (транслитерация)
     # ищем ALL-CAPS последовательность в начале предложения (допускаем цифровые токены: "U LI MAKSIMA 1718")
     if lang == 'en' and '"' not in translated:
@@ -1612,40 +1399,20 @@ def _fix_false_form(original_ru: str, translated: str, lang: str, has_quotes: bo
                 if ru_desc in pre_text:
                     uz_desc = _RU_TO_UZ_DESC[ru_desc]
                     break
-        # Fallback: если дескриптор не найден, берём UZ-форму из _FORM_MAP (напр. УП → KK)
-        if not uz_desc:
-            _fm = _detect_form_in_text(original_ru)
-            if _fm and _fm[1] and ' ' not in _fm[1]:
-                uz_desc = _fm[1]
 
         def _fix_uz_subject(m):
-            _ap = r"['''ʻʼ]"
             name = m.group(1)
             after = m.group(2)
-            words = after.strip().split()
-            # Сканируем первые 6 слов — дескриптор может стоять не на первой позиции
-            first_words = [re.sub(_ap, "'", w.rstrip('.,;').lower()) for w in words[:6]]
-            if any(w in _UZ_DESCRIPTOR_WORDS for w in first_words):
+            first_word = after.strip().split()[0].rstrip('.,;') if after.strip() else ''
+            if first_word.lower() in _UZ_DESCRIPTOR_WORDS:
                 return f'<p>{name} {after}'
             desc = uz_desc or 'kompaniyasi'
-            # Если слова из desc уже есть в первых словах — не добавляем (напр. shourum)
-            desc_words = set(re.sub(_ap, "'", desc.lower()).split())
-            if desc_words & set(first_words):
-                return f'<p>{name} {after}'
             return f'<p>{name} {desc} {after}'
 
-        translated = re.sub(r'<p>([«"""][^«"""»]*[»"""])\s*(.*)', _fix_uz_subject, translated)
+        translated = re.sub(r'<p>(".*?")\s*(.*)', _fix_uz_subject, translated)
 
-    elif lang == 'en':
-        if re.match(r'<p>\s*"', translated):
-            translated = re.sub(r'<p>\s*"', '<p>The company "', translated, count=1)
-        elif re.match(r'<p>\s*(?!The\s)[A-Z][a-z]', translated):
-            # Fix missing article: "Company "NAME"" → "The company "NAME""
-            translated = re.sub(
-                r'<p>\s*([A-Z][a-z][a-zA-Z]*(?:\s+[a-z][a-zA-Z]*)?)\s+"',
-                lambda m: f'<p>The {m.group(1).lower()} "',
-                translated, count=1
-            )
+    elif lang == 'en' and re.match(r'<p>\s*"', translated):
+        translated = re.sub(r'<p>\s*"', '<p>The company "', translated, count=1)
 
     return translated
 
@@ -1673,8 +1440,7 @@ def _fix_uz_capslock(translated: str) -> str:
             )
     result = ''.join(result_parts)
     # Восстанавливаем аббревиатуры форм компаний (mchj → MCHJ, xk → XK и т.п.)
-    _uz_caps_abbrs = _UZ_FORM_ABBRS | {'UK', 'GK', 'QK'}  # доп. формы из goldenpages
-    for abbr in sorted(_uz_caps_abbrs, key=len, reverse=True):
+    for abbr in sorted(_UZ_FORM_ABBRS, key=len, reverse=True):
         result = re.sub(r'\b' + re.escape(abbr.lower()) + r'\b', abbr, result, flags=re.IGNORECASE)
     return result
 
@@ -1687,6 +1453,46 @@ def _detect_form_in_text(text: str) -> Optional[tuple]:
         if re.search(pattern, text):
             return _FORM_MAP[form_key]
     return None
+
+
+# Латинские дескрипторы-типы в официальных названиях (goldenpages иногда отдаёт их
+# по-английски даже в RU/UZ версии): "MINZIFA HOTEL" → RU "Отель \"MINZIFA\"",
+# UZ "\"MINZIFA\" mehmonxonasi". EN оставляем как есть (его нормализует _normalize_en_name).
+_LATIN_DESC_MAP = {
+    'HOTEL':      ('Отель',    'mehmonxonasi', 'hotel'),
+    'HOSTEL':     ('Хостел',   'xosteli',      'hostel'),
+    'RESTAURANT': ('Ресторан', 'restorani',    'restaurant'),
+    'CAFE':       ('Кафе',     'kafesi',       'cafe'),
+    'RESORT':     ('Курорт',   'kurorti',      'resort'),
+    'CLINIC':     ('Клиника',  'klinikasi',    'clinic'),
+    'PLAZA':      ('Плаза',    'plaza',        'plaza'),
+}
+
+
+def _normalize_official_latin_desc(name: str, lang: str) -> str:
+    """Локализует латинский дескриптор-тип в офиц. названии и берёт имя в кавычки.
+
+    "MINZIFA HOTEL" / '"MINZIFA" HOTEL (Бухара)' →
+      ru: 'Отель "MINZIFA"',  uz: '"MINZIFA" mehmonxonasi'.
+    EN и названия без латинского дескриптора возвращаются без изменений.
+    """
+    if not name or lang not in ('ru', 'uz'):
+        return name
+    idx = _LANG_IDX[lang]
+    for desc, forms in _LATIN_DESC_MAP.items():
+        m = re.search(r'(?<![A-Za-z])' + desc + r'(?![A-Za-z])', name, re.IGNORECASE)
+        if not m:
+            continue
+        rest = name[:m.start()] + ' ' + name[m.end():]
+        rest = re.sub(r'\([^)]*\)', ' ', rest)  # убираем город в скобках
+        qm = re.search(r'[«"“]([^»"”]+)[»"”]', rest)
+        core = (qm.group(1) if qm else rest).strip()
+        core = re.sub(r'\s{2,}', ' ', core).strip(' -"«»“”')
+        if not core:
+            continue
+        loc = forms[idx]
+        return f'{loc} "{core}"' if lang == 'ru' else f'"{core}" {loc}'
+    return name
 
 
 def _extract_clean_official(official_name: str) -> str:
@@ -1717,9 +1523,7 @@ _ANY_VERB_RE = re.compile(
     r'оказывает|реализует|ведёт|предлагает|поставляет|выпускает|является|'
     r'specializes|carries|provides|offers|performs|produces|operates|focuses|delivers|'
     r'is\s+engaged|was\s+engaged|are\s+engaged|were\s+engaged|'
-    r'manufactures|fabricates|assembles|processes|constructs|builds|installs|'
-    r'supplies|delivers|distributes|exports|imports|outputs|markets|sells|trades|'
-    r'repairs|designs|develops|manages|handles|renders|'
+    r'manufactures|supplies|outputs|markets|exports|imports|distributes|'
     r'ixtisoslashgan|faoliyat|taqdim|bajaradi|ishlab)\b',
     re.IGNORECASE,
 )
@@ -1734,16 +1538,15 @@ def _normalize_uz_name(name: str) -> str:
 
 
 _EN_FORM_SUFFIX_RE = re.compile(
-    r'\s+(LLC|LTD\.?|CO\.?|OJSC|CJSC|JSC|IE|PE|ME|SUE|JV|ALC|SP|MUE|UE|SE|PCB|JISB|JSB|PC|LLP)\s*$',
+    r'\s+(LLC|LTD\.?|CO\.?|OJSC|CJSC|JSC|IE|PE|ME|SUE|JV|ALC|SP|MUE|UE|SE|PCB|JISB|JSB|PTF)\s*$',
     re.IGNORECASE,
 )
+# Аббревиатуры форм для отделения имени от формы внутри строки (не только в хвосте).
+_EN_FORM_ABBR_SET = {
+    'LLC', 'LTD', 'CO', 'OJSC', 'CJSC', 'JSC', 'IE', 'PE', 'ME', 'SUE',
+    'JV', 'ALC', 'SP', 'MUE', 'UE', 'SE', 'PCB', 'JISB', 'JSB', 'FE', 'PTF',
+}
 # Форму из goldenpages оставляем как есть; расширяем только описательные слова
-
-# Только юридические формы из _FORM_MAP (не дескрипторы) — для catch-all в _normalize_en_name
-_EN_FORM_LABELS_SORTED = sorted(
-    {v[2] for v in _FORM_MAP.values() if v[2] and re.match(r'^[A-Za-z]', v[2])},
-    key=len, reverse=True,
-)
 _EN_FORM_NORM = {'FAMILY': 'Family Enterprise', 'PRIVATE': 'Private Enterprise'}
 
 
@@ -1755,21 +1558,6 @@ _EN_COMPOUND_FORM_SUFFIXES = [
     ('FAMILY ENTERPRISE', 'Family Enterprise'),
     ('FAMILY COMPANY', 'Family company'),
 ]
-
-# Составные аббревиатурные формы из _FORM_MAP (JV LTD, LTD JV и т.п.)
-_EN_COMPOUND_ABBR_FORMS = sorted(
-    {v[2] for v in _FORM_MAP.values()
-     if v[2] and ' ' in v[2]
-     and all(2 <= len(w) <= 6 and w.isupper() for w in v[2].split())},
-    key=len, reverse=True,
-)
-
-# Regex для извлечения чистой формы из form_part: "JV LTD HEAD OFFICE" → "JV LTD"
-_ABBR_TOKEN = r'(?:LLC|LTD\.?|CO\.?|OJSC|CJSC|JSC|IE|PE|ME|SUE|JV|ALC|SP|MUE|UE|SE|PCB|JISB|JSB|LLP)'
-_PURE_FORM_RE = re.compile(
-    r'^(' + _ABBR_TOKEN + r'(?:\s+' + _ABBR_TOKEN + r')*)(?:\s|$)',
-    re.IGNORECASE,
-)
 
 
 def _strip_en_compound_form(base: str, form_part: str) -> tuple:
@@ -1798,28 +1586,26 @@ def _normalize_en_name(name: str) -> str:
         form_part = re.sub(r'\s+on\s+[\w.][\w\s,.]+$', '', form_part, flags=re.IGNORECASE).strip()
         form_part = re.sub(r'\s+in\s+[\w.][\w\s,.]+$', '', form_part, flags=re.IGNORECASE).strip()
         base, form_part = _strip_en_compound_form(base, form_part)
-        # Извлекаем чистые аббревиатуры из form_part, отбрасывая trailing дескрипторы
-        # напр. "JV LTD HEAD OFFICE" → "JV LTD"
-        _pm = _PURE_FORM_RE.match(form_part)
-        if _pm:
-            form_part = _pm.group(1).strip()
+        # Составную форму целиком (PRIVATE ENTERPRISE, JOINT VENTURE) нормализуем как
+        # единицу — иначе пословная нормализация PRIVATE→'Private Enterprise' оставляет
+        # висячее 'ENTERPRISE': 'PE ENTERPRISE "NAME"'. Матчим весь form_part по компаундам.
+        _compound_hit = next(
+            (label for suf, label in _EN_COMPOUND_FORM_SUFFIXES
+             if form_part.upper() == suf),
+            None,
+        )
+        if _compound_hit:
+            form_part = _compound_hit
         else:
+            # Bug 3 fix: нормализуем первое слово compound формы (LTD UZBEK-IRAN JV → LLC UZBEK-IRAN JV)
             words = form_part.split()
             if words and words[0].upper().rstrip('.') in _EN_FORM_NORM:
-                mapped = _EN_FORM_NORM[words[0].upper().rstrip('.')]
-                mapped_lower = set(mapped.lower().split())
-                remaining = [w for w in words[1:] if w.lower() not in mapped_lower]
-                form_part = (mapped + ' ' + ' '.join(remaining)).strip()
+                words[0] = _EN_FORM_NORM[words[0].upper().rstrip('.')]
+                form_part = ' '.join(words)
             else:
                 form_part = _EN_FORM_NORM.get(form_part.upper(), form_part)
         return f'{form_part} "{base}"'
-    # Pattern: "NAME FORM" — сначала проверяем составные аббревиатурные формы (JV LTD и т.п.)
-    for _compound_abbr in _EN_COMPOUND_ABBR_FORMS:
-        if name.upper().endswith(' ' + _compound_abbr):
-            _base = name[:-len(_compound_abbr)].rstrip()
-            if _base:
-                return f'{_compound_abbr} "{_base}"'
-    # Затем одиночные формы
+    # Pattern: "NAME FORM" или "NAME FORM."
     form_m = _EN_FORM_SUFFIX_RE.search(name)
     if form_m:
         form = form_m.group(1).rstrip('.')
@@ -1828,14 +1614,22 @@ def _normalize_en_name(name: str) -> str:
         base, extra = _strip_en_compound_form(base, '')
         if extra:
             form = f'{extra} {form}'
+        # base может содержать вложенную форму + страновое прилагательное:
+        # "ASKLEPIY-SVIFT LTD UZBEK-BRITISH" → имя = "ASKLEPIY-SVIFT", остальное → форма.
+        _bt = base.split()
+        _cut = next((i for i, w in enumerate(_bt)
+                     if w.upper().rstrip('.') in _EN_FORM_ABBR_SET), None)
+        if _cut is not None and _cut > 0:
+            form = f'{" ".join(_bt[_cut:])} {form}'
+            base = ' '.join(_bt[:_cut])
         return f'{form} "{base}"'
     # Нет стандартной формы — проверяем составные формы-дескрипторы в хвосте
     for suffix_upper, suffix_label in _EN_COMPOUND_FORM_SUFFIXES:
         if name.upper().endswith(' ' + suffix_upper):
             base = name[: -len(suffix_upper)].rstrip()
             return f'{suffix_label} "{base}"'
-    # Catch-all: только юридические формы из _FORM_MAP (не дескрипторы типа Complex/Center/Store)
-    for label in _EN_FORM_LABELS_SORTED:
+    # Catch-all: любой известный EN дескриптор/форма из _EN_ALL_LABELS_SORTED в хвосте
+    for label in _EN_ALL_LABELS_SORTED:
         if not label:
             continue
         if name.upper().endswith(' ' + label.upper()):
@@ -1867,6 +1661,9 @@ def force_official_name(generated_text: str, official_name: str, lang: str = '')
     clean = re.sub(r'\s+on\s+[\w.][\w\s,.-]+$', '', clean, flags=re.IGNORECASE).strip()
     clean = re.sub(r'\s+-\s+[\w.][\w\s,.-]+$', '', clean).strip()
     clean = re.sub(r"\s+\w+\s+ko[''']chasida\b.*$", '', clean, flags=re.IGNORECASE).strip()
+    if lang == 'uz':
+        # Гео-шум: узбекский город в локативе ("... Navoiyda") — это адрес, вырезаем.
+        clean = _strip_uz_city(clean)
     clean = clean.rstrip('.')
     if not clean:
         return generated_text
@@ -1876,14 +1673,6 @@ def force_official_name(generated_text: str, official_name: str, lang: str = '')
     if not re.search(r'[«"""]', clean):
         if re.search(r'[«"""]' + re.escape(clean) + r'[»"""]', generated_text[:200]):
             clean = f'"{clean}"'
-        elif lang == 'en' and re.search(r'[«"""]', generated_text[:100]):
-            # Официальное имя без кавычек, но в тексте кавычки есть (напр. № vs #).
-            # Сначала пробуем нормализацию — вдруг в имени есть форма (напр. "NAME. FORM").
-            _norm = _normalize_en_name(clean)
-            if '"' in _norm:
-                clean = _norm  # форма извлечена: FORM "BASE NAME"
-            else:
-                clean = f'"{clean}"'  # форма не найдена — просто оборачиваем
 
     # RU AUTO: сохранить Компания/Организация/Предприятие из generated_text
     if lang == 'ru' and re.match(r'^[«"""][^«"""»]*[»"""]$', clean):
@@ -1966,34 +1755,17 @@ def force_official_name(generated_text: str, official_name: str, lang: str = '')
             m_post = re.match(r'^(".*?")\s+(.+)$', clean)
             if m_post:
                 post = m_post.group(2).strip()
-                if post.upper() not in _UZ_FORM_ABBRS:
+                # Блок формы (содержит аббревиатуру MChJ/QK/AJ…) оставляем в исходном
+                # регистре: это форма компании, а не описательный дескриптор (zavodi и т.п.).
+                _is_form_block = post.upper() in _UZ_FORM_ABBRS or any(
+                    w.upper() in _UZ_FORM_ABBRS for w in post.split()
+                )
+                if not _is_form_block:
                     post_norm = post.lower()
                     _uz_extra_abbrs = {'IP', 'XK', 'QK', 'AJ'}
                     for abbr in sorted(_UZ_FORM_ABBRS | _uz_extra_abbrs, key=len, reverse=True):
                         post_norm = re.sub(r'(?<!\w)' + re.escape(abbr.lower()) + r'(?!\w)', abbr, post_norm)
                     clean = f'{m_post.group(1)} {post_norm}'
-
-    # EN: убираем дублирующее слово-дескриптор внутри clean (Family Enterprise COMPANY "N" → Family Enterprise "N")
-    if lang == 'en' and re.search(r'[«"""]', clean):
-        _dup_w = r'(?:Enterprise|Company|Venture|Association|Bureau|Institute|Farm|Center|Foundation|Union|Plant|Factory|Studio|Salon|Clinic|Cafe|Hotel|Store|Market|School|Bank)'
-        _form_pfx = r'(?:Private Enterprise|Family Enterprise|Family [Cc]ompany|Joint Venture|Foreign Enterprise|LLC|LTD\.?|JSC|OJSC|CJSC|JV|PE|IE|ME|SUE|LLP|SE|PC)'
-        clean = re.sub(
-            r'(' + _form_pfx + r'\s+)' + _dup_w + r'\s+([«""""«"])',
-            lambda m: m.group(1) + m.group(2),
-            clean, flags=re.IGNORECASE,
-        )
-        # Сворачиваем полные формы → аббревиатуры
-        for _full, _abbr in [('Private Enterprise', 'PE'), ('Joint Venture', 'JV'), ('Foreign Enterprise', 'FE'), ('Trade Mark', 'TM'), ('Trademark', 'TM'), ('Trade-mark', 'TM')]:
-            clean = re.sub(r'\b' + re.escape(_full) + r'\b(\s+[«""""«])', _abbr + r'\1', clean, flags=re.IGNORECASE)
-
-    # Нормализуем регистр дескриптора: КОНДИТЕРСКИЙ ДОМ "N" → Кондитерский дом "N"
-    if lang in ('ru', 'en') and re.search(r'[«"""]', clean):
-        _cn_m = re.match(r'^(.+?)\s+([«"""].+)', clean)
-        if _cn_m:
-            _pre = _cn_m.group(1).strip()
-            _pre_norm = _normalize_descriptor_case(_pre, lang)
-            if _pre_norm != _pre:
-                clean = _pre_norm + ' ' + _cn_m.group(2)
 
     p_m = re.match(r'(<p>)([\s\S]*)', generated_text)
     if not p_m:
@@ -2055,6 +1827,22 @@ def force_official_name(generated_text: str, official_name: str, lang: str = '')
         if lang == 'uz':
             clean_has_extra = bool(re.search(r'^\S.*\s+"[^"]*"$|^"[^"]*"\s+\S', clean))
             if clean_has_extra:
+                # Общий дедуп: блок формы/дескриптора, уже стоящий в clean рядом с именем,
+                # часто повторяется в начале description (напр. составные формы СП:
+                # 'MChJ O'ZBEKISTON-IZRAIL QK'). Словари дескрипторов таких компаундов не
+                # знают, поэтому сравниваем сам блок из clean с началом description.
+                m_extra = re.match(r'^"[^"]*"\s+(.+)$|^(.+?)\s+"[^"]*"$', clean)
+                if m_extra:
+                    extra = (m_extra.group(1) or m_extra.group(2)).strip()
+                    ew = extra.split()
+                    dw = description.split()
+
+                    def _q(s: str) -> str:
+                        return _UZ_APOSTROPHE_RE.sub("'", s).lower()
+
+                    if ew and len(dw) >= len(ew) and \
+                            _q(' '.join(dw[:len(ew)])) == _q(extra):
+                        description = ' '.join(dw[len(ew):])
                 # Убираем ВСЕ дублирующиеся дескрипторы в начале description (цикл)
                 changed = True
                 while changed:
@@ -2085,12 +1873,30 @@ def force_official_name(generated_text: str, official_name: str, lang: str = '')
 
 
 # UZ apostrophe variants: ASCII ' U+0027, typographic ' U+2019, modifier ʻ U+02BB, ʼ U+02BC
-_UZ_APOSTROPHE_RE = re.compile(r"['''ʻʼ]")
+_UZ_APOSTROPHE_RE = re.compile(r"['‘’ʻʼ]")
+
+
+def _strip_mahsulot(text: str) -> str:
+    """Убирает служебную строку 'MAHSULOT: ...' из UZ-перевода, оставляя только <p>...</p>.
+
+    Модель по промпту (ШАГ 1) всегда пишет черновую строку MAHSULOT перед переводом.
+    Стрипить нужно после КАЖДОГО вызова API (в т.ч. ретраев), иначе префикс утекает.
+    """
+    if not text:
+        return text
+    m = re.search(r'(<p>.*</p>)', text, re.DOTALL)
+    if m:
+        text = m.group(1)
+    else:
+        text = re.sub(r'^MAHSULOT:.*\n?', '', text, flags=re.IGNORECASE).strip()
+    # Дополнительно чистим, если MAHSULOT оказался вне/внутри тега
+    text = re.sub(r'MAHSULOT:\s*[^\n<]*\n?', '', text, flags=re.IGNORECASE).strip()
+    return text
 
 _UZ_PRODUCTION_VERBS_RE = re.compile(
     r"ishlab\s+chiqar(?:adi|ish|uvchi|moqda)|"
     r"ishlab\s+chiqar(?:adi|ish)|"
-    r"shug['''ʻʼ]ullan(?:adi|moqda)|"
+    r"shug['‘’ʻʼ]ullan(?:adi|moqda)|"
     r"faoliyat\s+yurit(?:adi|moqda)|"
     r"ixtisoslash(?:gan|moqda|tirilgan)|"
     r"sotadi|taklif\s+etadi|yetkazib\s+beradi",
@@ -2098,20 +1904,9 @@ _UZ_PRODUCTION_VERBS_RE = re.compile(
 )
 
 
-def extract_facts(client: OpenAI, ru_text: str) -> str:
-    """Извлекает сухие факты из RU текста для передачи в UZ/EN генерацию."""
-    prompt = PROMPT_EXTRACT_FACTS.format(text=ru_text)
-    result = _call_api(client, prompt, "facts", temperature=0.0) or ""
-    # Убираем теги если модель их вернула
-    result = re.sub(r'<[^>]+>', '', result).strip()
-    return result
-
-
 def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
-              official_name: str = "", official_subject: str = "",
-              facts: str = "") -> str:
-    """Перевод готового русского текста на uz или en.
-    Если передан facts — генерирует текст из фактов (лучше качество)."""
+              official_name: str = "", official_subject: str = "") -> str:
+    """Перевод готового русского текста на uz или en."""
     if not text or not text.strip():
         return text
 
@@ -2131,7 +1926,7 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
     else:
         clean_official = official_name
 
-        # Для UZ: заменяем кириллические аббревиатуры материалов латинскими эквивалентами,
+    # Для UZ: заменяем кириллические аббревиатуры материалов латинскими эквивалентами,
     # чтобы модель не теряла и не искажала их при переводе.
     _CYR_ABBR_MAP = {
         'ЛДСП': 'LDSP', 'ДСП': 'DSP', 'МДФ': 'MDF', 'ЛМДФ': 'LMDF',
@@ -2174,15 +1969,15 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
         if effective_form:
             system_parts.append(
                 f"⚠️ КРИТИЧНО: Форма/дескриптор компании ОБЯЗАТЕЛЬНО должна быть \"{effective_form}\" "
-                f"(взята из официального источника). НЕ заменяй на другую форму. "
-                f"Узбекский стандарт: имя ПЕРВЫМ в кавычках, затем форма: \"{clean_official or 'NAME'}\" {effective_form} ..."
+                f"(взята из официального источника). НЕ заменяй на MCHJ, AJ или другую форму. "
+                f"Пример: \"NAME\" {effective_form} (название ПЕРВЫМ в кавычках, затем {effective_form})."
             )
         if clean_official:
             if has_quotes:
                 system_parts.append(
                     f"ОФИЦИАЛЬНОЕ НАЗВАНИЕ КОМПАНИИ (только написание): \"{clean_official}\". "
                     f"Используй именно это написание в кавычках. "
-                    f"Узбекский порядок: имя ПЕРВЫМ: \"{clean_official}\" MChJ/XK/AJ. "
+                    f"Формы (AJ, MCHJ, YT) идут ПЕРВЫМИ: AJ \"{clean_official}\". "
                     f"Дескрипторы (kafesi, markazi) — ПОСЛЕ: \"{clean_official}\" kafesi."
                 )
             else:
@@ -2235,45 +2030,46 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
     result = _call_api(client, user_msg, lang, system_prompt=system_content, temperature=0.3) or text
     if lang == 'uz':
         # Strip the "MAHSULOT: ..." line, keep only the <p>...</p> part
-        _p_match = re.search(r'(<p>.*</p>)', result, re.DOTALL)
-        if _p_match:
-            result = _p_match.group(1)
-        else:
-            result = re.sub(r'^MAHSULOT:.*\n?', '', result, flags=re.IGNORECASE).strip()
-        # Дополнительно чистим если MAHSULOT оказался внутри тега
-        result = re.sub(r'MAHSULOT:\s*[^\n<]*\n?', '', result, flags=re.IGNORECASE).strip()
+        result = _strip_mahsulot(result)
         for _attempt in range(2):
             if not _has_cyrillic_uz(result):
                 break
             logger.warning(f"UZ перевод содержит кириллицу, повторяю (попытка {_attempt + 1}/2)...")
             cyrillic_sys = "⚠️ КРИТИЧНО: Перевод ДОЛЖЕН быть на узбекской ЛАТИНИЦЕ. НЕ используй кириллицу. O'zbek lotin alifbosida yoz.\n\n" + system_content
-            result = _call_api(client, user_msg, lang, system_prompt=cyrillic_sys, temperature=0.3) or result
+            result = _strip_mahsulot(_call_api(client, user_msg, lang, system_prompt=cyrillic_sys, temperature=0.3) or result)
         if _has_cyrillic_uz(result):
             logger.warning("UZ перевод всё ещё содержит кириллицу после 2 повторных попыток")
-        # Completeness check: UZ must have same sentence count as RU source
+        # Completeness check: UZ must match RU source по числу предложений И объёму слов.
+        # Счётчик предложений — слабый прокси: модель может ужать 3 предложения в 1,
+        # выбросив контент. Поэтому дополнительно требуем ≥60% слов от оригинала.
         # Сначала чистим от рекламных предложений, потом считаем
         result = _strip_ad_sentences(result)
+        _wc = lambda s: len(re.sub(r'<[^>]+>', '', s).split())
         src_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', text)))
+        src_words = _wc(text)
         out_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', result)))
-        for _comp_attempt in range(2):
-            if src_sentences <= 1 or out_sentences >= src_sentences:
+        out_words = _wc(result)
+        for _comp_attempt in range(3):
+            complete = src_sentences <= 1 or (out_sentences >= src_sentences and out_words >= 0.6 * src_words)
+            if complete:
                 break
-            logger.warning(f"UZ перевод неполный ({out_sentences} предл. vs {src_sentences} в оригинале), повторяю (попытка {_comp_attempt+1}/2)...")
+            logger.warning(f"UZ перевод неполный ({out_sentences} предл./{out_words} слов vs {src_sentences} предл./{src_words} слов в оригинале), повторяю (попытка {_comp_attempt+1}/3)...")
             completeness_sys = (
                 f"⚠️ TARJIMA TO'LIQ EMAS: asl matnda {src_sentences} ta gap bor, tarjimada faqat {out_sentences} ta. "
-                f"Har bir gapni to'liq tarjima qil, hech narsani o'tkazib yubora.\n\n"
+                f"Har bir gapni to'liq tarjima qil, hech qanday ma'lumotni (ta'mirlash, uskunalar, ehtiyot qismlar va h.k.) tushirib qoldirma.\n\n"
                 + system_content
             )
             retry_result = _call_api(client, user_msg, lang, system_prompt=completeness_sys, temperature=0.5)
             if retry_result and not _has_cyrillic_uz(retry_result):
-                _rp = re.search(r'(<p>.*</p>)', retry_result, re.DOTALL)
-                if _rp:
-                    retry_result = _rp.group(1)
-                retry_result = re.sub(r'MAHSULOT:\s*[^\n<]*\n?', '', retry_result, flags=re.IGNORECASE).strip()
+                retry_result = _strip_mahsulot(retry_result)
+                retry_result = _strip_ad_sentences(retry_result)
                 retry_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', retry_result)))
-                if retry_sentences > out_sentences:
+                retry_words = _wc(retry_result)
+                # принимаем ретрай если он полнее по контенту (больше слов или предложений)
+                if retry_words > out_words or retry_sentences > out_sentences:
                     result = retry_result
                     out_sentences = retry_sentences
+                    out_words = retry_words
     elif lang == 'en':
         for _attempt in range(2):
             if not _has_cyrillic(result):
@@ -2282,73 +2078,62 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
             result = _call_api(client, user_msg, lang, system_prompt=system_content, temperature=0.3) or result
         if _has_cyrillic(result):
             logger.warning("EN перевод всё ещё содержит кириллицу после 2 повторных попыток")
-        # Проверка полноты EN — сначала чистим, потом считаем
+        # Проверка полноты EN — по предложениям И объёму слов (см. коммент в UZ-ветке)
         result = _strip_ad_sentences(result)
+        _wc = lambda s: len(re.sub(r'<[^>]+>', '', s).split())
         src_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', text)))
+        src_words = _wc(text)
         out_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', result)))
-        for _comp_attempt in range(2):
-            if src_sentences <= 1 or out_sentences >= src_sentences:
+        out_words = _wc(result)
+        for _comp_attempt in range(3):
+            complete = src_sentences <= 1 or (out_sentences >= src_sentences and out_words >= 0.6 * src_words)
+            if complete:
                 break
-            logger.warning(f"EN перевод неполный ({out_sentences} предл. vs {src_sentences} в оригинале), повторяю (попытка {_comp_attempt+1}/2)...")
+            logger.warning(f"EN перевод неполный ({out_sentences} предл./{out_words} слов vs {src_sentences} предл./{src_words} слов в оригинале), повторяю (попытка {_comp_attempt+1}/3)...")
             completeness_sys = (
                 f"⚠️ INCOMPLETE TRANSLATION: source has {src_sentences} sentences, translation has only {out_sentences}. "
-                f"Translate EVERY sentence fully — do not skip any content.\n\n"
+                f"Translate EVERY sentence fully — do not drop any content (repair, equipment, spare parts, components, services, etc.).\n\n"
                 + system_content
             )
             retry_result = _call_api(client, user_msg, lang, system_prompt=completeness_sys, temperature=0.5)
             if retry_result and not _has_cyrillic(retry_result):
+                retry_result = _strip_ad_sentences(retry_result)
                 retry_sentences = len(re.findall(r'[.!?]', re.sub(r'<[^>]+>', '', retry_result)))
-                if retry_sentences > out_sentences:
+                retry_words = _wc(retry_result)
+                if retry_words > out_words or retry_sentences > out_sentences:
                     result = retry_result
                     out_sentences = retry_sentences
+                    out_words = retry_words
+    if lang == 'uz':
+        # Финальный предохранитель: гарантированно нет утечки MAHSULOT ни по одному пути ретраев.
+        result = _strip_mahsulot(result)
     result = _fix_false_form(text, result, lang, has_quotes)
     if lang == 'uz':
         result = _fix_uz_capslock(result)
         result = re.sub(r'\[([^\]]+)\]', r'\1', result)
-        # Убираем подряд идущие одинаковые слова в первых 8 токенах после имени компании.
-        # Это ловит все случаи дублирования дескриптора: galereyasi galereyasi,
-        # do'koni do'koni, qandolatchilik qandolatchilik и т.п.
-        _apos = r"['''ʻʻʼʼ']"
-        _norm_desc_words = frozenset(re.sub(_apos, "'", w) for w in _UZ_DESCRIPTOR_WORDS)
-        def _dedup_consecutive(m):
+        # Убираем повторные дескрипторы после имени компании в кавычках
+        # e.g. '"NAME" do'koni filiali do'koni do'koni ...' → '"NAME" do'koni filiali ...'
+        _apos = r"[‘’’ʻʻʼʼ]"
+        def _dedup_uz_desc(m):
             name_part = m.group(1)
             rest = m.group(2)
+            seen = set()
             tokens = rest.split()
             result_tokens = []
-            prev_norm = None
-            seen_desc = set()  # дескрипторные слова — только один раз в первых 8 токенах
-            window = []  # скользящее окно последних 3 нормализованных токенов
-            for i, tok in enumerate(tokens):
+            for tok in tokens:
                 tok_norm = re.sub(_apos, "'", tok.rstrip('.,;').lower())
-                # Подряд идущий дубль — убираем
-                if i < 8 and tok_norm == prev_norm and len(tok_norm) > 1:
+                if tok_norm in _UZ_DESCRIPTOR_WORDS and tok_norm in seen:
                     continue
-                # Слово встречается в окне последних 3 токенов (tikuv sexi tikuv)
-                if i < 8 and len(tok_norm) > 3 and tok_norm in window:
-                    continue
-                # Дескрипторное слово повторяется в первых 8 токенах
-                if i < 8 and tok_norm in _norm_desc_words and tok_norm in seen_desc:
-                    continue
-                if i < 8 and tok_norm in _norm_desc_words:
-                    seen_desc.add(tok_norm)
+                seen.add(tok_norm)
                 result_tokens.append(tok)
-                prev_norm = tok_norm
-                window = (window + [tok_norm])[-3:]
             return name_part + ' ' + ' '.join(result_tokens)
-        result = re.sub(r'(<p>(?:[A-Z]{2,6}\s+)?[«"""][^«"""»]*[»"""])\s+(.+)', _dedup_consecutive, result)
+        result = re.sub(r'(<p>"[^"]*")\s+(.+)', _dedup_uz_desc, result)
 
     result = _strip_ad_sentences(result)
 
-    # Заменяем канцеляризмы на активные глаголы
+    # EN: исправляем "engaged in" → "is engaged in" (пропущенный глагол-связка)
     if lang == 'en':
-        for _pat, _repl in _CANCEL_EN:
-            result = _pat.sub(_repl, result)
         result = re.sub(r'(?<!is )engaged in', 'is engaged in', result)
-        result = re.sub(r'<p>It\s+(?=[A-Za-z])', '<p>The company ', result)
-        result = re.sub(r'(?<=\.\s)It\s+(?=[a-z])', 'The company ', result)
-    elif lang == 'uz':
-        for _pat, _repl in _CANCEL_UZ:
-            result = _pat.sub(_repl, result)
 
     # Валидация переводов с одним ретраем при FAIL
     if lang == 'uz':
@@ -2358,13 +2143,10 @@ def translate(client: OpenAI, text: str, lang: str, has_quotes: bool = True,
             retry_sys = f"⚠️ OLDINGI TARJIMADA XATOLAR: {reasons}\nQayta yozing, bu xatolardan qoching.\n\n{system_content}"
             retry_raw = _call_api(client, user_msg, lang, system_prompt=retry_sys, temperature=0.3)
             if retry_raw and not _has_cyrillic_uz(retry_raw):
-                pm = re.search(r'(<p>.*</p>)', retry_raw, re.DOTALL)
-                if pm:
-                    retry_raw = pm.group(1)
+                retry_raw = _strip_mahsulot(retry_raw)
                 retry_raw = re.sub(r'\[([^\]]+)\]', r'\1', retry_raw)
                 retry_raw = _fix_false_form(text, retry_raw, lang, has_quotes)
                 retry_raw = _fix_uz_capslock(retry_raw)
-                retry_raw = re.sub(r'(<p>[«"""][^«"""»]*[»"""])\s+(.+)', _dedup_uz_desc, retry_raw)
                 result = _strip_ad_sentences(retry_raw)
     elif lang == 'en':
         is_valid, reasons = _validate_en(client, result)

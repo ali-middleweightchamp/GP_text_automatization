@@ -10,3 +10,6 @@ check_*.py
 *.txt
 !requirements.txt
 .claude/
+
+.DS_Store
+checkpoint.bak*
